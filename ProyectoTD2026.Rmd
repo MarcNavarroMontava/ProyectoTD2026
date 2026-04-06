@@ -10,6 +10,12 @@ output: html_document
 # introduccion ...
 
 
+El archivo logs_moodle_anon.csv es un registro de actividad de en la plataforma Moodle. Los datos son anonimos, donde se reemplaza los identificadores por códigos como "U0072".
+
+Cada fila del archivo representa una acción realizada por un usuario en un momento específico. Podemos ver desde cuándo un estudiante visualiza el contenido de una carpeta o archivo, hasta cuándo realiza y entrega sus tareas de programación en R o DataCamp. También se registran las interacciones con herramientas como GitHub y RMarkdown, así como las veces que los estudiantes revisan sus calificacioness.
+
+Además de las acciones de los estudiantes, el registro incluye las actividades de gestión del profesor, como la actualización de calificaciones o la creación de nuevos recursos.
+
 ```{r}
 
 library(tidyverse)
