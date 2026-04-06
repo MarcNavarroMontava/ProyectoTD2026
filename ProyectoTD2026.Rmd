@@ -17,6 +17,10 @@ También se registran las interacciones con herramientas como GitHub y RMarkdown
 
 Además de las acciones de los estudiantes, el registro incluye las actividades de gestión del profesor, como la actualización de calificaciones o la creación de nuevos recursos.
 
+# Preguntas
+
+-- Cual es la cantidad de registros realizados, expresado en porcentage, de los profesores en comparacion con la de los alumnos?
+
 ```{r}
 
 library(tidyverse)
