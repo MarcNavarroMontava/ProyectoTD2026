@@ -24,7 +24,7 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 -- ¿Qué tipo de correlación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 -- ¿Qué día de la semana hay más actividad?
 -- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web?
-
+-- ¿Hay estudiantes que nunca entraron a ciertas secciones?
 
 ```{r}
 
