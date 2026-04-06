@@ -20,7 +20,7 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 # Preguntas
 
 -- Cual es la cantidad de registros realizados, expresado en porcentage, de los profesores en comparacion con la de los alumnos?
-
+-- ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma?
 ```{r}
 
 library(tidyverse)
