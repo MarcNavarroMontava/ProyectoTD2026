@@ -23,6 +23,8 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 -- ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma?
 -- ¿Qué tipo de correlación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 -- ¿Cuánto tiempo antes de una entrega empiezan los estudiantes a conectarse?
+-- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web?
+
 
 ```{r}
 
