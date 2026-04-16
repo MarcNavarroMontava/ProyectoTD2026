@@ -31,7 +31,7 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 library(tidyverse)
 
 logs <- read_csv("data/logs_moodle_anon.csv")
-View(logs)
+
 
 ```
 
