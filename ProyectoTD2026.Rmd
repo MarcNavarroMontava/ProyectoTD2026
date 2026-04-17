@@ -7,7 +7,7 @@ output: html_document
 
 
 
-# introduccion ...
+#INTRODUCCIÓN
 
 
 El archivo logs_moodle_anon.csv es un registro de actividad de en la plataforma Moodle. Los datos son anonimos, donde se reemplaza los identificadores por códigos como "U0072".
@@ -17,7 +17,7 @@ También se registran las interacciones con herramientas como GitHub y RMarkdown
 
 Además de las acciones de los estudiantes, el registro incluye las actividades de gestión del profesor, como la actualización de calificaciones o la creación de nuevos recursos.
 
-# Preguntas
+#PREGUNTAS
 
 -- Cual es la cantidad de registros realizados, expresado en porcentage, de los profesores en comparacion con la de los alumnos?
 -- ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma?
@@ -26,6 +26,8 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 -- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web? ¿Hay momentos típicos para los componentes como  "Tarea", "Cuestionario", "Carpeta", "Encuesta", ...
 -- ¿Hay estudiantes que nunca entraron a ciertas secciones?
 
+
+#LEER LOS DATOS
 ```{r}
 
 library(tidyverse)
@@ -34,6 +36,8 @@ logs <- read_csv("data/logs_moodle_anon.csv")
 
 
 ```
+
+#FIGURA
 
 ```{r figura-logs, fig.cap=Frecuencia de logs en cada componente}
 library(ggplot2)
@@ -49,3 +53,22 @@ ggplot(logs, aes(x=Componentes_g)) +  geom_bar(fill = "lightgreen") +
 ```
 
 En la Figura \@ref(fig:figura-logs) Observamos la frecuencia de uso de cada componente.
+
+#TABLA
+
+# Análisis inicial de la actividad
+
+Para entender qué están haciendo los estudiantes, primero echamos un vistazo a las acciones que más se repiten en la plataforma. En la Tabla \@ref(tab:tabla-eventos) hemos resumido las cinco actividades principales.
+
+```{r tabla-eventos}
+# Sacamos los 5 eventos más repetidos para ver qué es lo que más hacen
+top_eventos <- logs_moodle_anon %>%
+  count(`Nombre evento`, sort = TRUE) %>%
+  head(5)
+
+knitr::kable(top_eventos, 
+             col.names = c("Acción realizada", "Número de veces"),
+             caption = "Las cinco acciones más frecuentes de los alumnos en Moodle", 
+             booktabs = TRUE)
+```
+
