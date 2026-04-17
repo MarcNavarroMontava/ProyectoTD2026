@@ -35,3 +35,17 @@ logs <- read_csv("data/logs_moodle_anon.csv")
 
 ```
 
+```{r figura-logs, fig.cap=Frecuencia de logs en cada componente}
+library(ggplot2)
+library(dplyr)
+Componentes_g<- as.factor(logs$Componente)
+nombres <- as.factor(logs$`Nombre completo del usuario`)
+ggplot(logs, aes(x=Componentes_g)) +  geom_bar(fill = "lightgreen") +
+  labs(x = "Usuarios en cada componente", y = "Frecuencia de usos del componente",
+       title = "Frecuencia de logs en cada componente") +
+  theme_minimal()
+
+
+```
+
+
