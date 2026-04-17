@@ -48,4 +48,4 @@ ggplot(logs, aes(x=Componentes_g)) +  geom_bar(fill = "lightgreen") +
 
 ```
 
-
+En la Figura \@ref(fig:figura-logs) Observamos la frecuencia de uso de cada componente.
