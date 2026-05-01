@@ -102,7 +102,7 @@ Para convertirlo asumimos que se encuentra estructurado como ´dd/mm/aa´, ´hh:
 
 ```{r echo=FALSE}
 logs <- logs %>% mutate(Hora= dmy_hms(Hora))
-class(logs_1_hora$Hora) # Ahora ya lo podemos tratar como un dato tipo fecha
+class(logs$Hora) # Ahora ya lo podemos tratar como un dato tipo fecha
 ```
 
 Nos damos cuenta que la columna 'Usuario afectado' se encuentra plena de NAs
@@ -113,9 +113,25 @@ total_registros <- nrow(logs)
 
 total_na/total_registros*100 #Hay un 63% de NAs
 ```
+
 Esta gran cantidad nos hace entender tras la información documentada:
 "Usuario afectado: usuario sobre el que recae la acción (cuando aplica; si no se ha codificado como NA)."
 
 Esto implica que un 63% de usuarios no fueron afectados. ¿Pero exactamente de que acción no fueron afectados?
 
 Para esta pregunta podemos responderla a través de aquellos registros en donde la columna de Usuario afectado no es un NA, es decir, en donde sí fueron afectados.
+
+```{r}
+logs_afectados <- logs %>% filter(!is.na(`Usuario afectado`))
+```
+
+Este conjunto de datos parece ser interesante, ya que a primera vista no se logra captar ningún patrón por el cual estos usuarios la acción que tomaron tuviera consecuencias en el sistema. 
+
+Antes de entrar en detalle, nos damos cuenta de una anomalía en el conjunto de datos.
+
+Ya que parece ser que el los `Usuarios afectados`
+```{r}
+
+```
+
+
