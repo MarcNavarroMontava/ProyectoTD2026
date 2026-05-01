@@ -26,12 +26,18 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 -- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web? ¿Hay momentos típicos para los componentes como  "Tarea", "Cuestionario", "Carpeta", "Encuesta", ...
 -- ¿Hay estudiantes que nunca entraron a ciertas secciones?
 
+#Carga de librerias
+
+```{r}
+library(pacman)
+library(dplyr)
+library(tidyverse)
+```
+
+
 
 # LEER LOS DATOS
 ```{r}
-
-library(tidyverse)
-
 logs <- read_csv("data/logs_moodle_anon.csv")
 
 view(logs)
@@ -74,7 +80,42 @@ knitr::kable(logs_recientes,
              booktabs = TRUE)
 
 ```
-Como se observa en la Tabla \@ref(tab:tabla-logsrecientes), mostramos una muestra de datosidentificando quiénes han sido los últimos usuarios en interactuar con el sistema. 
+Como se observa en la Tabla \@ref(tab:tabla-logsrecientes), mostramos una muestra de datos identificando quiénes han sido los últimos usuarios en interactuar con el sistema. 
+
+
+## Limpieza de los datos
+
+Nos damos cuenta que tenemos una anomalía con la columna hora.
+```{r, echo=FALSE}
+library(lubridate)
+head(logs) #la columna horas tiene ',' entre ellas, utilizaremos lubridate para hacerlo más fácil
+tail(logs) # Por esta función tengo la sospecha de que están ordenados
+class(logs$Hora) #Es de tipo character
+
+#Para poder trabajar con este dato correctamente lo pasaremos a dato tipo fecha
 
 
 
+
+```
+Para convertirlo asumimos que se encuentra estructurado como ´dd/mm/aa´, ´hh:mm:ss´
+
+```{r echo=FALSE}
+logs <- logs %>% mutate(Hora= dmy_hms(Hora))
+class(logs_1_hora$Hora) # Ahora ya lo podemos tratar como un dato tipo fecha
+```
+
+Nos damos cuenta que la columna 'Usuario afectado' se encuentra plena de NAs
+
+```{r echo=FALSE}
+total_na<-sum(is.na(logs$`Usuario afectado`)*1)
+total_registros <- nrow(logs)
+
+total_na/total_registros*100 #Hay un 63% de NAs
+```
+Esta gran cantidad nos hace entender tras la información documentada:
+"Usuario afectado: usuario sobre el que recae la acción (cuando aplica; si no se ha codificado como NA)."
+
+Esto implica que un 63% de usuarios no fueron afectados. ¿Pero exactamente de que acción no fueron afectados?
+
+Para esta pregunta podemos responderla a través de aquellos registros en donde la columna de Usuario afectado no es un NA, es decir, en donde sí fueron afectados.
