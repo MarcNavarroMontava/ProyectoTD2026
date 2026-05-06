@@ -20,11 +20,18 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 # PREGUNTAS
 
 -- Cual es la cantidad de registros realizados, expresado en porcentage, de los profesores en comparacion con la de los alumnos?
+
 -- ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma?
--- ¿Qué tipo de correlación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
+
+-- ¿Qué tipo de correlación existe entre los logs de los usuarios, y el nombre del evento, según los datos? - Andrés
+
 -- ¿Qué día de la semana hay más actividad?
+
 -- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web? ¿Hay momentos típicos para los componentes como  "Tarea", "Cuestionario", "Carpeta", "Encuesta", ...
+
 -- ¿Hay estudiantes que nunca entraron a ciertas secciones?
+
+-- ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Andrés
 
 #Carga de librerias
 
@@ -141,3 +148,6 @@ Sin embargo observamos que no es así completamente. Es decir que ocurren regist
 De hecho si los contamos son un poco menos de la mitad de todos los registros, es decir que son bastantes.
 
 (Se delega para la parte de analisis)
+
+Resolución de NAs: Hemos identificado un 63% de NAs en la columna `Usuario afectado`. El análisis revela que estos no son errores de registro, sino acciones pasivas. Para el análisis general, conservaremos estos datos. Sin embargo, para estudiar las interacciones, se ha creado un subconjunto (logs_afectados) filtrando los NAs.
+
