@@ -40,8 +40,6 @@ library(tidyverse)
 ```{r}
 logs <- read_csv("data/logs_moodle_anon.csv")
 
-view(logs)
-
 ```
 
 # FIGURA
@@ -114,7 +112,7 @@ total_registros <- nrow(logs)
 total_na/total_registros*100 #Hay un 63% de NAs
 ```
 
-Esta gran cantidad nos hace entender tras la información documentada:
+Esta gran cantidad se nos hace a entender tras la información documentada:
 "Usuario afectado: usuario sobre el que recae la acción (cuando aplica; si no se ha codificado como NA)."
 
 Esto implica que un 63% de usuarios no fueron afectados. ¿Pero exactamente de que acción no fueron afectados?
@@ -127,11 +125,19 @@ logs_afectados <- logs %>% filter(!is.na(`Usuario afectado`))
 
 Este conjunto de datos parece ser interesante, ya que a primera vista no se logra captar ningún patrón por el cual estos usuarios la acción que tomaron tuviera consecuencias en el sistema. 
 
-Antes de entrar en detalle, nos damos cuenta de una anomalía en el conjunto de datos.
+Antes de entrar en detalle, nos damos cuenta de una anomalía en el conjunto de datos de `logs_afectados`.
 
-Ya que parece ser que el los `Usuarios afectados`
+Ya que parece ser que en la columna de `Usuario afectado` coincide con la columna de `Nombre completo del usuario`.
 ```{r}
+coincidencias <- logs_afectados[,2] == logs_afectados[,3]
+no_coincidencias <- logs_afectados[,2] != logs_afectados[,3]
+sum(no_coincidencias)
 
 ```
 
+Sin embargo observamos que no es así completamente. Es decir que ocurren registros en donde no es reflexiva la acción tomada por el usuario.
 
+
+De hecho si los contamos son un poco menos de la mitad de todos los registros, es decir que son bastantes.
+
+(Se delega para la parte de analisis)
