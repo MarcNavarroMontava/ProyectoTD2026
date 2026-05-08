@@ -118,7 +118,7 @@ Nos damos cuenta que la columna 'Usuario afectado' se encuentra plena de NAs
 total_na<-sum(is.na(logs$`Usuario afectado`)*1)
 total_registros <- nrow(logs)
 
-total_na/total_registros*100 #Hay un 63% de NAs
+total_na/total_registros*100 #Hay un 63% de NAs de la columna de Usuarios afectados
 ```
 
 Esta gran cantidad se nos hace a entender tras la información documentada:
@@ -152,6 +152,19 @@ De hecho si los contamos son un poco menos de la mitad de todos los registros, e
 (Se delega para la parte de analisis)
 
 Resolución de NAs: Hemos identificado un 63% de NAs en la columna `Usuario afectado`. El análisis revela que estos no son errores de registro, sino acciones pasivas. Para el análisis general, conservaremos estos datos. Sin embargo, para estudiar las interacciones, se ha creado un subconjunto (logs_afectados) filtrando los NAs.
+
+
+
+Por otra parte si es cierto que hemos conseguido hacer un análisis exahustivo sobre los NAs de la columna de `Usuarios afectados`, no hemo comprobado que en el resto de variables no contengan NAs.
+
+```{r}
+for (x in ) {
+  
+}
+
+
+```
+
 
 ## Análisis de outliers...
 
