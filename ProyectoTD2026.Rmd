@@ -35,6 +35,8 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 
 -- De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Andrés Noza
 
+-- Detección de roles administrativos mediante el análisis de la arquitectura de datos faltantes (IP) - Andrés Noza
+
 #Carga de librerias
 
 ```{r}
@@ -180,6 +182,19 @@ Primera, los datos faltantes se tratan de un MAR debido a que estan estrechament
 Segundo, aparece un nuevo nombre de usuario distinto al que habíamos visto en `logs_afectados` que es capaz generar registros (no NAs) en la columna de usuarios afectados.
 
 Es sumamente importante porque es posible que este filtrado nos permita obtener los usuarios que tienen permisos superiores en el moodle del aula virtual. Lo extraño es que este nuevo usuario `U0125` no aparece o tarda en aparecer hasta dentro de mucho tiempo, ya que están ordenados los registros de más recientes a más antiguos, en la tabla de `logs_afectados`, lo que quiere decir que las (supuestas) modificaciones `logs_na_ip`no fueron hechas hasta hace mucho más tiempo que en la tabla de `logs_afectados`
+
+¿Qué eventos provocan esos NAs?
+
+```{r tabla-eventos_NA}
+analisis_na_ip <- logs_na_ip %>% count(`Nombre evento`, sort = TRUE, name = "Cantidad de NAs") %>% head(10)
+
+knitr::kable(analisis_na_ip, 
+             caption = "Nombre de los eventos que más provocan NAs en las IP", 
+             booktabs = TRUE)
+
+
+```
+
 
 ## Análisis de outliers...
 
