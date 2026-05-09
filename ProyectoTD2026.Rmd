@@ -163,6 +163,23 @@ Por otra parte, si es cierto que hemos conseguido hacer un análisis exahustivo 
 colSums(is.na(logs))
 ```
 
+Nos damos cuenta que existe una gran cantidad de NAs proveniente de las direcciones IP.
+
+Sin embargo estos datos faltantes no fueron notificados como metadatos al igual que con los de la columna de `Usuarios afectados`, por lo que estos si son verdaderos NA a los cuales debemos de tratar.
+
+A pesar de que es cierto que no sea una gran cantidad respecto al total como lo son la de `Usuarios afectados`, comprobaremos como se comportan en el conjunto de datos, y si se trata de un MCAR, MAR o MNAR.
+
+```{r}
+logs_na_ip <- logs %>% filter(is.na(`Dirección IP`))
+```
+
+En este conjunto de datos nos damos cuenta de dos grandes cosas: 
+
+Primera, los datos faltantes se tratan de un MAR debido a que estan estrechamente relacionados con el resto de variables y se las podría calificar como las del tipo modificación y eliminación del aula virtual.
+
+Segundo, aparece un nuevo nombre de usuario distinto al que habíamos visto en `logs_afectados` que es capaz generar registros (no NAs) en la columna de usuarios afectados.
+
+Es sumamente importante porque es posible que este filtrado nos permita obtener los usuarios que tienen permisos superiores en el moodle del aula virtual. Lo extraño es que este nuevo usuario `U0125` no aparece o tarda en aparecer hasta dentro de mucho tiempo, ya que están ordenados los registros de más recientes a más antiguos, en la tabla de `logs_afectados`, lo que quiere decir que las (supuestas) modificaciones `logs_na_ip`no fueron hechas hasta hace mucho más tiempo que en la tabla de `logs_afectados`
 
 ## Análisis de outliers...
 
