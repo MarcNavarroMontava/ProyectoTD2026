@@ -226,6 +226,11 @@ ggplot(analisis_na_ip,aes(x=reorder(`Nombre evento`,`Cantidad de NAs`),y = `Cant
 
 Como se observa en la figura \@ref(fig:figura-logs) se representan todos los eventos que han provocado datos faltantes en la dirección IP.
 
+
+Tras analizar los datos, se detectaron 2.857 registros sin Dirección IP. En lugar de descartarlos, se analizó su mecanismo de pérdida. El gráfico demuestra empíricamente que estos NAs no son MCAR (Missing Completely At Random) por fallos de conexión, sino que siguen un patrón condicionado (MAR - Missing At Random). Los valores faltantes se concentran masivamente en eventos de tipo `Evento de calendario actualizado` o `Calificación borrrada`. Esto confirma que se trata de procesos automatizados ejecutados en el back-end por el propio sistema o la base de datos, los cuales, por su propia naturaleza arquitectónica, no registran una IP de cliente. Por tanto, estos NAs son estructuralmente válidos y conservan información vital sobre el mantenimiento de la plataforma.
+
+
+
 ## Análisis de outliers...
 
 
