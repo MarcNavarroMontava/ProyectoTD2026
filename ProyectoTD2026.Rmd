@@ -231,6 +231,17 @@ Tras analizar los datos, se detectaron 2.857 registros sin Dirección IP. En lug
 
 
 
+Para comprobar empíricamente que se trata de un MAR, demostraremos que el hecho de que falte una dirección IP dependerá del evento que se esté tratando.
+
+```{r}
+eventos_sin_ip <- logs_na_ip %>% count(`Nombre evento`, sort = TRUE, name = "Cantidad de Usuarios sin IP") %>% mutate(Tipo = "Sin IP")
+
+eventos_con_ip <- logs %>% filter(!is.na(`Dirección IP`)) %>% 
+  count(`Nombre evento`, sort = TRUE, name = "Cantidad de Usuarios con IP") %>% head(10) %>% mutate(Tipo = "Con IP")
+
+comparativa_na <- bind_rows(head(eventos_sin_ip, 10), eventos_con_ip)
+```
+
 ## Análisis de outliers...
 
 
