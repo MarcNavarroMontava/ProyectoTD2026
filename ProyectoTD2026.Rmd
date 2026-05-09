@@ -23,7 +23,7 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 
 -- ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma?
 
--- ¿Qué tipo de relación existe entre los logs de los usuarios, y el nombre del evento, según los datos? - Andrés
+-- ¿Existe una polarización en el uso de la plataforma? ¿Qué usuarios concretos concentran la mayor cantidad de eventos críticos (como entregas o calificaciones) frente a la mayoría pasiva? - Andrés Noza
 
 -- ¿Qué día de la semana hay más actividad?
 
@@ -31,7 +31,9 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 
 -- ¿Hay estudiantes que nunca entraron a ciertas secciones?
 
--- ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Andrés
+-- ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Andrés Noza
+
+-- De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Andrés Noza
 
 #Carga de librerias
 
@@ -151,18 +153,14 @@ De hecho si los contamos son un poco menos de la mitad de todos los registros, e
 
 (Se delega para la parte de analisis)
 
-Resolución de NAs: Hemos identificado un 63% de NAs en la columna `Usuario afectado`. El análisis revela que estos no son errores de registro, sino acciones pasivas. Para el análisis general, conservaremos estos datos. Sin embargo, para estudiar las interacciones, se ha creado un subconjunto (logs_afectados) filtrando los NAs.
+Resolución de NAs para la columna `Usuario afectado`: Hemos identificado un 63% de NAs. El análisis revela que estos no son errores de registro, sino acciones pasivas. Para el análisis general, conservaremos estos datos. Sin embargo, para estudiar las interacciones, se ha creado un subconjunto (logs_afectados) filtrando los NAs.
 
 
 
-Por otra parte si es cierto que hemos conseguido hacer un análisis exahustivo sobre los NAs de la columna de `Usuarios afectados`, no hemo comprobado que en el resto de variables no contengan NAs.
+Por otra parte, si es cierto que hemos conseguido hacer un análisis exahustivo sobre los NAs de la columna de `Usuarios afectados` pero, no hemos comprobado que en el resto de variables no contengan NAs.
 
 ```{r}
-for (x in ) {
-  
-}
-
-
+colSums(is.na(logs))
 ```
 
 
