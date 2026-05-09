@@ -43,6 +43,8 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 library(pacman)
 library(dplyr)
 library(tidyverse)
+library(ggplot2)
+
 ```
 
 
@@ -56,8 +58,6 @@ logs <- read_csv("data/logs_moodle_anon.csv")
 # FIGURA
 
 ```{r figura-logs, fig.cap="Frecuencia de actividad en los componentes de Moodle"}
-library(ggplot2)
-library(dplyr)
 
 datos_figura <- logs %>%
   count(Componente, sort = TRUE) %>%
@@ -121,7 +121,8 @@ Trataremos los datos `Nombre evento`, `Contexto del evento` y  `Componente` como
 ```{r}
 logs <- logs %>% mutate(across(c(`Nombre evento`, `Contexto del evento`,Componente), as.factor))
 class(logs$`Contexto del evento`)
-
+class(logs$`Nombre evento`)
+class(logs$Componente)
 ```
 
 
@@ -198,22 +199,32 @@ Es sumamente importante porque es posible que este filtrado nos permita obtener 
 ¿Qué eventos provocan esos NAs?
 
 ```{r tabla-eventos_NA}
-analisis_na_ip <- logs_na_ip %>% count(`Nombre evento`, sort = TRUE, name = "Cantidad de NAs") %>% head(10)
+analisis_na_ip <- logs_na_ip %>% count(`Nombre evento`, sort = TRUE, name = "Cantidad de NAs") 
+analisis_na_ip_10 <- analisis_na_ip %>% head(10)
 
-knitr::kable(analisis_na_ip, 
+knitr::kable(analisis_na_ip_10, 
              caption = "Nombre de los eventos que más provocan NAs en las IP", 
              booktabs = TRUE)
 
 
 ```
 
-Como se observa en la Tabla \@ref(tab:tabla-eventos_NA), la mayor parte de eventos que provocan NAs son aquellos que tienen que ver con la administración de la plataforma Moodle. 
+Como se observa en la Tabla \@ref(tab:tabla-eventos_NA), la mayor parte de eventos que provocan NAs son aquellos que tienen que ver con la administración de la plataforma Moodle. Se trata de los diez eventos que más NAs ha provocado en IP
 
-```{r}
-ggplot(analisis_na_ip,aes(x=`Nombre evento`,))
-class(analisis_na_ip$`Nombre evento`)
+
+Visualizamos el patrón
+```{r figura-eventos_NA, fig.cap="Frecuencia de los eventos que provocan más NAs"}
+ggplot(analisis_na_ip,aes(x=reorder(`Nombre evento`,`Cantidad de NAs`),y = `Cantidad de NAs`))+
+  geom_col(fill="darkred", alpha = 0.8) +
+  coord_flip() +
+  labs(title = "Análisis de Datos Faltantes: Eventos sin Dirección IP (MAR)", 
+       x = "Nombre del evento",
+       y = "Cantidad de NAs")+
+  theme_minimal()
+
 ```
 
+Como se observa en la figura \@ref(fig:figura-logs) se representan todos los eventos que han provocado datos faltantes en la dirección IP.
 
 ## Análisis de outliers...
 
