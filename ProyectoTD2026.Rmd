@@ -107,12 +107,24 @@ class(logs$Hora) #Es de tipo character
 
 
 ```
+
+
 Para convertirlo asumimos que se encuentra estructurado como ´dd/mm/aa´, ´hh:mm:ss´
 
 ```{r echo=FALSE}
 logs <- logs %>% mutate(Hora= dmy_hms(Hora))
 class(logs$Hora) # Ahora ya lo podemos tratar como un dato tipo fecha
 ```
+
+Trataremos los datos `Nombre evento`, `Contexto del evento` y  `Componente` como factores.
+
+```{r}
+logs <- logs %>% mutate(across(c(`Nombre evento`, `Contexto del evento`,Componente), as.factor))
+class(logs$`Contexto del evento`)
+
+```
+
+
 
 ## Limpieza de NAs
 
@@ -193,6 +205,13 @@ knitr::kable(analisis_na_ip,
              booktabs = TRUE)
 
 
+```
+
+Como se observa en la Tabla \@ref(tab:tabla-eventos_NA), la mayor parte de eventos que provocan NAs son aquellos que tienen que ver con la administración de la plataforma Moodle. 
+
+```{r}
+ggplot(analisis_na_ip,aes(x=`Nombre evento`,))
+class(analisis_na_ip$`Nombre evento`)
 ```
 
 
