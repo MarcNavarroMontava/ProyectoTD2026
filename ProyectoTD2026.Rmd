@@ -19,23 +19,35 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 
 # PREGUNTAS
 
--- Cual es la cantidad de registros realizados, expresado en porcentage, de los profesores en comparacion con la de los alumnos?
+-- ¿Cuales han sido las tareas más realizadas por los estudiantes?¿Por qué? - Marc 
 
--- ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma?
+-- ¿Cuantos estudiantes aplican el control de asistencia online, tiene alguna relación con las tareas más realizadas? - Marc
 
--- ¿Existe una polarización en el uso de la plataforma? ¿Qué usuarios concretos concentran la mayor cantidad de eventos críticos (como entregas o calificaciones) frente a la mayoría pasiva? - Andrés Noza
 
--- ¿Qué día de la semana hay más actividad?
+-- ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma? - Silvia
 
--- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web? ¿Hay momentos típicos para los componentes como  "Tarea", "Cuestionario", "Carpeta", "Encuesta", ...
+-- ¿Qué día de la semana hay más actividad?¿Coincide con alguna fecha significativa? - Silvia
 
--- ¿Hay estudiantes que nunca entraron a ciertas secciones?
+-- ¿¿Existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo? - Silvia
 
--- ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Andrés Noza
 
--- De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Andrés Noza
+-- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web? ¿Hay momentos típicos para los componentes como  "Tarea", "Cuestionario", "Carpeta", "Encuesta", ... - Nav
+
+-- Detección de outliers - Nav
+
+
+-- ¿Hay estudiantes que nunca entraron a ciertas secciones?¿Podemos asumir una clara distinción entre estudiantes y profesores sabiendo esto? - Lucía
+
+-- ¿Que tan antiguos son los logs registrados? ¿Puede tener alguna relación con aquellos estudiantes que nunca entraron a ciertas secciones? ¿Pueden haberse registrado logs de alumnos de otros años? - Lucía
+
+
+-- ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
+
+-- De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
 
 -- Detección de roles administrativos mediante el análisis de la arquitectura de datos faltantes (IP) - Andrés Noza
+
+-- ¿Existe una polarización en el uso de la plataforma? ¿Qué usuarios concretos concentran la mayor cantidad de eventos críticos (como entregas o calificaciones) frente a la mayoría pasiva? - Andrés Noza
 
 #Carga de librerias
 
