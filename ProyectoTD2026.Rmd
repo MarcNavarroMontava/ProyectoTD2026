@@ -262,4 +262,103 @@ comparativa_na <- bind_rows(head(eventos_sin_ip, 10), eventos_con_ip)
 
 ## ¿Qué tipo de relación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 
+## ¿Cuales han sido las tareas más realizadas por los estudiantes?¿Por qué? - Marc
 
+```{r}
+
+tareas_mas_realizadas <- logs %>%
+  filter(
+    Componente == "Tarea" | 
+      str_detect(`Nombre evento`, regex("submission|upload|entreg|envió|data camp|r markdown|github", ignore_case = TRUE))
+  ) %>%
+  count(`Nombre evento`, Componente, sort = TRUE) %>%
+  head(10)
+
+
+knitr::kable(tareas_mas_realizadas, 
+             caption = "Tareas más frecuentes realizadas por estudiantes",
+             col.names = c("Evento", "Componente", "Frecuencia"),
+             booktabs = TRUE)
+
+# Gráfico directo sin filtro de estudiantes
+ggplot(tareas_mas_realizadas, aes(x = reorder(`Nombre evento`, n), y = n)) +
+  geom_col(fill = "steelblue", alpha = 0.9, width = 0.7) +
+  geom_text(aes(label = n), hjust = -0.2, size = 3.5) +
+  coord_flip() +
+  scale_y_continuous(
+    limits = c(0, 15000),
+    breaks = seq(0, 15000, by = 2500)
+  ) +
+  labs(
+    title = "Tareas más realizadas por los estudiantes",
+    subtitle = "Basado en logs de Moodle",
+    x = "Evento",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
+
+```
+
+
+## ¿Cuantos estudiantes aplican el control de asistencia online, tiene alguna relación con las tareas más realizadas? - Marc
+
+
+```{r}
+
+# Para ver todos los eventos disponibles y elegir los adecuados para la pregunta
+eventos_disponibles <- logs %>%
+  distinct(`Nombre evento`) %>%
+  arrange(`Nombre evento`)
+
+asistencia_eventos <- c(
+  "Asistencia confirmada",
+  "Asistencia confirmada por el alumno",
+  "Sesión actualizada",
+  "Sesión añadida",
+  "Sesión eliminada",
+  "Informe de sesión visto"
+)
+
+# Usuarios que han participado en control de asistencia
+usuarios_con_asistencia <- logs %>%
+  filter(`Nombre evento` %in% asistencia_eventos) %>%
+  distinct(`Nombre completo del usuario`) %>%
+  pull(`Nombre completo del usuario`)
+
+# Total de usuarios únicos
+total_usuarios <- logs %>%
+  distinct(`Nombre completo del usuario`) %>%
+  nrow()
+
+usuarios_sin_asistencia <- total_usuarios - length(usuarios_con_asistencia)
+porcentaje_asistencia <- round(length(usuarios_con_asistencia) / total_usuarios * 100, 2)
+
+# Tabla resumen
+resumen_asistencia <- data.frame(
+  Categoria = c("Usuarios con control de asistencia", 
+                "Usuarios sin control de asistencia",
+                "Total usuarios en el sistema"),
+  Cantidad = c(length(usuarios_con_asistencia), usuarios_sin_asistencia, total_usuarios),
+  Porcentaje = c(porcentaje_asistencia, 100 - porcentaje_asistencia, 100)
+)
+
+knitr::kable(resumen_asistencia, 
+             caption = "Usuarios que aplican control de asistencia online",
+             booktabs = TRUE)
+
+# Gráfico
+ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"), 
+       aes(x = "", y = Cantidad, fill = Categoria)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(Cantidad, "\n(", Porcentaje, "%)")), 
+            position = position_stack(vjust = 0.5), size = 5) +
+  scale_fill_manual(values = c("Usuarios con control de asistencia" = "darkgreen", 
+                                "Usuarios sin control de asistencia" = "red")) +
+  labs(
+    title = "Control de asistencia online",
+    subtitle = paste("Total de usuarios:", total_usuarios)
+  ) +
+  theme_void()
+
+```
