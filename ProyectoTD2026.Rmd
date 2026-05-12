@@ -366,6 +366,7 @@ ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"
 
 
 #Primero vamos a agrupar por hora para saber el pico donde hay más actividad
+
 ```{r}
 actividad_por_hora <- logs %>% mutate(Solo_Hora = hour(Hora)) %>%
   group_by(Solo_Hora) %>%
@@ -377,7 +378,9 @@ actividad_por_hora <- logs %>% mutate(Solo_Hora = hour(Hora)) %>%
 hora_pico <- actividad_por_hora$Solo_Hora[1]
 max_logs <- actividad_por_hora$Total_Registros[1]
 ```
+
 #Visualización 
+
 ```{r}
 ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) + 
   geom_line(color = "blue", size = 1) +
@@ -387,10 +390,34 @@ ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) +
   labs(title = "Distribución de la Actividad de los Estudiantes por Hora", x = "Hora del dia", y = "Cantidad de registros")
 ```
 
+## ¿Qué día de la semana hay más actividad?¿Coincide con alguna fecha significativa? - Silvia
+
+#Primero creamos un función que nos permita extraer parte de la fecha que queramos comprobar
+```{r}
+actividad_semanal <- logs %>%
+  mutate(Dia_Semana = format(Hora, "%A" )) %>%
+  group_by(Dia_Semana) %>%
+  summarise(Total_Registros = n(), .groups = 'drop') %>%
+  mutate(Dia_Semana = factor(Dia_Semana, levels = c("lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"))) %>%
+  arrange(Dia_Semana)
 ```
-## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
+#Con esta función extraemo el nombre del día
+```{r}
+actividad_semanal <- logs %>%
+  mutate(Dia_Semana = weekdays(Hora)) %>% 
+  group_by(Dia_Semana) %>%
+  summarise(Total_Registros = n(), .groups = 'drop')
+```
+#Visualización en un gráfico de barras
 
 ```{r}
+ggplot(actividad_semanal, aes(x = Dia_Semana, y = Total_Registros)) +
+  geom_col(fill = "orange", color = "white") +
+  labs(title = "Actividad en AulaVirtual por Día de la Semana", x = "Día de la semana", y = "Número total de registros")
+```
+
+## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
+
 
 # head(logs)
 # colnames(logs)
@@ -402,15 +429,18 @@ ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) +
 
 #Tabla resumen
 
+```{r}
 eventos_interacc_directa <- logs %>%
   filter(!is.na(`Usuario afectado`),
          `Nombre completo del usuario` != `Usuario afectado`) %>%
   count(`Nombre evento`, sort = TRUE)
 
 eventos_interacc_directa
+```
 
 #Grafico
 
+```{r}
 ggplot(eventos_interacc_directa, aes(x = `Nombre evento`, y = n))+
   geom_col(fill = "steelblue", alpha = 0.8)+
   coord_flip()+
@@ -424,9 +454,9 @@ ggplot(eventos_interacc_directa, aes(x = `Nombre evento`, y = n))+
 
 ## De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
 
-```{r}
 #Tabla resumen
 
+```{r}
 porcentaje_interacc_directa <- logs %>%
   mutate(tipo = if_else(
     !is.na(`Usuario afectado`) & `Nombre completo del usuario` != `Usuario afectado`,
@@ -436,9 +466,11 @@ porcentaje_interacc_directa <- logs %>%
   mutate(porcentaje = round(n / sum(n) * 100, 2))
 
 porcentaje_interacc_directa
+```
 
 #Grafico
 
+```{r}
 ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
   geom_bar(stat = "identity") +
   coord_polar("y")+
