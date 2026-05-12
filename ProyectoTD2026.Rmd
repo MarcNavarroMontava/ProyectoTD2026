@@ -28,7 +28,7 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 
 -- ¿Qué día de la semana hay más actividad?¿Coincide con alguna fecha significativa? - Silvia
 
--- ¿¿Existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo? - Silvia
+-- ¿Existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo? - Silvia
 
 
 -- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web? ¿Hay momentos típicos para los componentes como  "Tarea", "Cuestionario", "Carpeta", "Encuesta", ... - Nav
@@ -393,6 +393,7 @@ ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) +
 ## ¿Qué día de la semana hay más actividad?¿Coincide con alguna fecha significativa? - Silvia
 
 #Primero creamos un función que nos permita extraer parte de la fecha que queramos comprobar
+
 ```{r}
 actividad_semanal <- logs %>%
   mutate(Dia_Semana = format(Hora, "%A" )) %>%
@@ -401,7 +402,9 @@ actividad_semanal <- logs %>%
   mutate(Dia_Semana = factor(Dia_Semana, levels = c("lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"))) %>%
   arrange(Dia_Semana)
 ```
-#Con esta función extraemo el nombre del día
+
+#Con esta función extraemos el nombre del día
+
 ```{r}
 actividad_semanal <- logs %>%
   mutate(Dia_Semana = weekdays(Hora)) %>% 
@@ -414,6 +417,29 @@ actividad_semanal <- logs %>%
 ggplot(actividad_semanal, aes(x = Dia_Semana, y = Total_Registros)) +
   geom_col(fill = "orange", color = "white") +
   labs(title = "Actividad en AulaVirtual por Día de la Semana", x = "Día de la semana", y = "Número total de registros")
+```
+
+
+## ¿Existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo? - Silvia
+
+
+#En esta función cruzamos varias variables como día y hora
+
+```{r}
+interaccion_horaria <- logs %>%
+  mutate(Dia = format(Hora, "%A"), Hora_Num = hour(Hora)) %>%
+  mutate(Dia = factor(Dia, levels = c("lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"))) %>%
+  group_by(Dia, Hora_Num) %>%
+  summarise(Total = n(), .groups = 'drop')
+```
+#Visualización en un mapa de calor (Heatmap)
+
+```{r}
+ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
+  geom_tile(color = "white") + 
+  scale_fill_gradient(low = "white", high = "red") +
+  scale_x_continuous(breaks = 0:23) +
+  labs(title = "Mapa de Calor: Interacción Día vs Hora en Moodle", x = "Franja Horaria (0-23h)", y = "Día de la Semana", fill = "Registros")
 ```
 
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
