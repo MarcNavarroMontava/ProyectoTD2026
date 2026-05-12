@@ -360,8 +360,10 @@ ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"
     subtitle = paste("Total de usuarios:", total_usuarios)
   ) +
   theme_void()
+```
 
 ## ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma? - Silvia
+
 
 #Primero vamos a agrupar por hora para saber el pico donde hay más actividad
 ```{r}
