@@ -361,6 +361,30 @@ ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"
   ) +
   theme_void()
 
+## ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma? - Silvia
+
+#Primero vamos a agrupar por hora para saber el pico donde hay más actividad
+```{r}
+actividad_por_hora <- logs %>% mutate(Solo_Hora = hour(Hora)) %>%
+  group_by(Solo_Hora) %>%
+  summarise(Total_Registros = n(), .groups = 'drop') %>%
+  arrange(desc(Total_Registros))
+```
+#Ahora extraemos la hora más activa
+```{r}
+hora_pico <- actividad_por_hora$Solo_Hora[1]
+max_logs <- actividad_por_hora$Total_Registros[1]
+```
+#Visualización 
+```{r}
+ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) + 
+  geom_line(color = "blue", size = 1) +
+  geom_point(color = "blue", size = 2) +
+  geom_area(fill = "blue", alpha = 0.2) +
+  scale_x_continuous(breaks = 0:23) + 
+  labs(title = "Distribución de la Actividad de los Estudiantes por Hora", x = "Hora del dia", y = "Cantidad de registros")
+```
+
 ```
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
