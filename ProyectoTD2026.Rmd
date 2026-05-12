@@ -362,3 +362,62 @@ ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"
   theme_void()
 
 ```
+-- ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
+
+```{r}
+
+# head(logs)
+# colnames(logs)
+# logs %>%
+# 
+# unique(logs$`Nombre evento`)
+
+#Como sabemos los roles seguramente?
+
+#Tabla resumen
+
+eventos_interacc_directa <- logs %>%
+  filter(!is.na(`Usuario afectado`),
+         `Nombre completo del usuario` != `Usuario afectado`) %>%
+  count(`Nombre evento`, sort = TRUE)
+
+#eventos_interacc_directa
+
+#Grafico
+
+ggplot(eventos_interacc_directa, aes(x = `Nombre evento`, y = n))+
+  geom_col(fill = "steelblue", alpha = 0.8)+
+  coord_flip()+
+  labs(title = "Eventos con interacción entre usuarios distintos",
+      x = "Nombre del evento",
+      y = "Número de interacciones") +
+  scale_y_log10() +
+  theme_minimal()
+
+```
+
+-- De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
+
+```{r}
+#Tabla resumen
+
+porcentaje_interacc_directa <- logs %>%
+  mutate(tipo = if_else(
+    !is.na(`Usuario afectado`) & `Nombre completo del usuario` != `Usuario afectado`,
+    "Interacción directa", "Lectura/Navegación"
+  )) %>%
+  count(tipo) %>%
+  mutate(porcentaje = round(n / sum(n) * 100, 2))
+
+#Grafico
+
+ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
+  geom_bar(stat = "identity") +
+  coord_polar("y")+
+  labs(title = "Proporción real de eventos de interacción directa")+
+  geom_text(aes(label = paste0(porcentaje, "%")), 
+            position = position_stack(vjust = 0.5),
+            color = "black", fontface = "bold", size = 5)+
+  theme_void()
+
+```
