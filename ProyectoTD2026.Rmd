@@ -496,6 +496,9 @@ porcentaje_interacc_directa
 
 #Grafico
 
+
+
+
 ```{r}
 ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
   geom_bar(stat = "identity") +
@@ -507,3 +510,78 @@ ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
   theme_void()
 
 ```
+## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
+
+```{r secciones-por-usuario}
+accesos <- logs %>%
+  group_by(`Nombre completo del usuario`) %>%
+  summarise(secciones_visitadas = n_distinct(Componente),
+            total_eventos = n()) %>%
+  arrange(secciones_visitadas)
+
+knitr::kable(head(accesos, 10),
+             caption = "Usuarios con menos secciones visitadas",
+             booktabs = TRUE)
+
+ggplot(accesos, aes(x = secciones_visitadas)) +
+  geom_histogram(fill = "coral", bins = 20) +
+  labs(title = "Distribución de secciones visitadas por usuario",
+       x = "Número de secciones visitadas",
+       y = "Número de usuarios") +
+  theme_minimal()
+
+accesos %>%
+  mutate(rol = ifelse(total_eventos > quantile(total_eventos, 0.90),
+                      "Posible profesor/admin", "Posible estudiante")) %>%
+  count(rol) %>%
+  knitr::kable(caption = "Distinción entre posibles profesores y estudiantes",
+               booktabs = TRUE)
+
+#Los usuarios con menos secciones visitadas podrían ser estudiantes que dejaron el curso o se incorporaron mas tarde y los usuarios con muchas secciones visitadas y mas número de eventos corresponden seguramente al profesor
+```
+
+## ¿Qué tan antiguos son los logs? ¿Pueden ser de otros años? - Lucía
+
+```{r antiguedad-logs}
+rango_fechas <- logs %>%
+  summarise(
+    fecha_mas_antigua = min(Hora),
+    fecha_mas_reciente = max(Hora),
+    dias_totales = as.numeric(difftime(max(Hora), min(Hora), units = "days"))
+  )
+
+knitr::kable(rango_fechas,
+             caption = "Rango temporal de los logs registrados",
+             booktabs = TRUE)
+
+logs %>%
+  mutate(mes = floor_date(Hora, "month")) %>%
+  count(mes) %>%
+  ggplot(aes(x = mes, y = n)) +
+  geom_col(fill = "steelblue") +
+  labs(title = "Actividad mensual: ¿hay registros de otros años?",
+       x = "Mes", y = "Número de eventos") +
+  theme_minimal()
+
+usuarios_antiguos <- logs %>%
+  group_by(`Nombre completo del usuario`) %>%
+  summarise(ultima_conexion = max(Hora),
+            primera_conexion = min(Hora)) %>%
+  filter(ultima_conexion < as.POSIXct("2024-09-01")) %>%
+  arrange(ultima_conexion)
+
+knitr::kable(usuarios_antiguos,
+             caption = "Usuarios que solo aparecen en fechas antiguas",
+             booktabs = TRUE)
+
+#la mayoría de registros son del curso 2024-2025, si hubiera datos de años anteriores, explicaría por qué hay usuarios con tan poca actividad, puede que sean alumnos de otros cursos
+```
+
+
+
+
+
+
+
+
+
