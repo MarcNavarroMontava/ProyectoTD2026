@@ -422,7 +422,7 @@ actividad_semanal <- logs %>%
   mutate(Dia_Semana = format(Hora, "%A" )) %>%
   group_by(Dia_Semana) %>%
   summarise(Total_Registros = n(), .groups = 'drop') %>%
-  mutate(Dia_Semana = factor(Dia_Semana, levels = c("lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"))) %>%
+  mutate(Dia_Semana = factor(Dia_Semana, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   arrange(Dia_Semana)
 ```
 
@@ -451,19 +451,20 @@ ggplot(actividad_semanal, aes(x = Dia_Semana, y = Total_Registros)) +
 ```{r}
 interaccion_horaria <- logs %>%
   mutate(Dia = format(Hora, "%A"), Hora_Num = hour(Hora)) %>%
-  mutate(Dia = factor(Dia, levels = c("lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"))) %>%
+  mutate(Dia = factor(Dia, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   group_by(Dia, Hora_Num) %>%
   summarise(Total = n(), .groups = 'drop')
 ```
 #Visualización en un mapa de calor (Heatmap)
 
-```{r}
+```{r echo=FALSE}
 ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
   geom_tile(color = "white") + 
-  scale_fill_gradient(low = "white", high = "red") +
+  scale_fill_gradient(low = "orange", high = "blue") +
   scale_x_continuous(breaks = 0:23) +
   labs(title = "Mapa de Calor: Interacción Día vs Hora en Moodle", x = "Franja Horaria (0-23h)", y = "Día de la Semana", fill = "Registros")
 ```
+
 
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
