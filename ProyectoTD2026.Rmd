@@ -290,41 +290,37 @@ actividad_usuario <- actividad_usuario %>%
 ```{r}
 
 tareas_mas_realizadas <- logs %>%
-  filter(
-    Componente == "Tarea" | 
-      str_detect(`Nombre evento`, regex("submission|upload|entreg|envió|data camp|r markdown|github", ignore_case = TRUE))
-  ) %>%
-  count(`Nombre evento`, Componente, sort = TRUE) %>%
+  filter(str_detect(`Contexto del evento`, "^Tarea:")) %>%
+  distinct(`Nombre completo del usuario`, `Contexto del evento`) %>%
+  count(`Contexto del evento`, sort = TRUE) %>%
   head(10)
+
+colnames(tareas_mas_realizadas) <- c("Contexto del evento", "Usuarios únicos")
 
 
 knitr::kable(tareas_mas_realizadas, 
-             caption = "Tareas más frecuentes realizadas por estudiantes",
-             col.names = c("Evento", "Componente", "Frecuencia"),
+             caption = "Contextos de evento 'Tarea' más frecuentes (usuarios únicos que participaron)",
              booktabs = TRUE)
 
-# Gráfico directo sin filtro de estudiantes
-ggplot(tareas_mas_realizadas, aes(x = reorder(`Nombre evento`, n), y = n)) +
+ggplot(tareas_mas_realizadas, aes(x = reorder(`Contexto del evento`, `Usuarios únicos`), y = `Usuarios únicos`)) +
   geom_col(fill = "steelblue", alpha = 0.9, width = 0.7) +
-  geom_text(aes(label = n), hjust = -0.2, size = 3.5) +
+  geom_text(aes(label = `Usuarios únicos`), hjust = -0.2, size = 3.5) +
   coord_flip() +
   scale_y_continuous(
-    limits = c(0, 15000),
-    breaks = seq(0, 15000, by = 2500)
+    limits = c(0, max(tareas_mas_realizadas$`Usuarios únicos`) * 1.1),
+    breaks = seq(0, max(tareas_mas_realizadas$`Usuarios únicos`), by = 5)
   ) +
   labs(
     title = "Tareas más realizadas por los estudiantes",
-    subtitle = "Basado en logs de Moodle",
-    x = "Evento",
-    y = "Frecuencia"
+    subtitle = "Basado en usuarios únicos por contexto de evento 'Tarea:'",
+    x = "Contexto del evento",
+    y = "Número de usuarios únicos"
   ) +
   theme_minimal()
 
 ```
 
-
 ## ¿Cuantos estudiantes aplican el control de asistencia online, tiene alguna relación con las tareas más realizadas? - Marc
-
 
 ```{r}
 
@@ -335,11 +331,7 @@ eventos_disponibles <- logs %>%
 
 asistencia_eventos <- c(
   "Asistencia confirmada",
-  "Asistencia confirmada por el alumno",
-  "Sesión actualizada",
-  "Sesión añadida",
-  "Sesión eliminada",
-  "Informe de sesión visto"
+  "Asistencia confirmada por el alumno"
 )
 
 # Usuarios que han participado en control de asistencia
@@ -358,8 +350,8 @@ porcentaje_asistencia <- round(length(usuarios_con_asistencia) / total_usuarios 
 
 # Tabla resumen
 resumen_asistencia <- data.frame(
-  Categoria = c("Usuarios con control de asistencia", 
-                "Usuarios sin control de asistencia",
+  Categoria = c("Usuarios con al menos 1 control de asistencia", 
+                "Usuarios sin ningun control de asistencia",
                 "Total usuarios en el sistema"),
   Cantidad = c(length(usuarios_con_asistencia), usuarios_sin_asistencia, total_usuarios),
   Porcentaje = c(porcentaje_asistencia, 100 - porcentaje_asistencia, 100)
@@ -376,8 +368,8 @@ ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"
   coord_polar("y", start = 0) +
   geom_text(aes(label = paste0(Cantidad, "\n(", Porcentaje, "%)")), 
             position = position_stack(vjust = 0.5), size = 5) +
-  scale_fill_manual(values = c("Usuarios con control de asistencia" = "darkgreen", 
-                                "Usuarios sin control de asistencia" = "red")) +
+  scale_fill_manual(values = c("Usuarios con al menos 1 control de asistencia" = "darkgreen", 
+                                "Usuarios sin ningun control de asistencia" = "red")) +
   labs(
     title = "Control de asistencia online",
     subtitle = paste("Total de usuarios:", total_usuarios)
