@@ -302,25 +302,11 @@ knitr::kable(tareas_mas_realizadas,
              caption = "Contextos de evento 'Tarea' más frecuentes (usuarios únicos que participaron)",
              booktabs = TRUE)
 
-ggplot(tareas_mas_realizadas, aes(x = reorder(`Contexto del evento`, `Usuarios únicos`), y = `Usuarios únicos`)) +
-  geom_col(fill = "steelblue", alpha = 0.9, width = 0.7) +
-  geom_text(aes(label = `Usuarios únicos`), hjust = -0.2, size = 3.5) +
-  coord_flip() +
-  scale_y_continuous(
-    limits = c(0, max(tareas_mas_realizadas$`Usuarios únicos`) * 1.1),
-    breaks = seq(0, max(tareas_mas_realizadas$`Usuarios únicos`), by = 5)
-  ) +
-  labs(
-    title = "Tareas más realizadas por los estudiantes",
-    subtitle = "Basado en usuarios únicos por contexto de evento 'Tarea:'",
-    x = "Contexto del evento",
-    y = "Número de usuarios únicos"
-  ) +
-  theme_minimal()
-
 ```
 
+
 ## ¿Cuantos estudiantes aplican el control de asistencia online, tiene alguna relación con las tareas más realizadas? - Marc
+
 
 ```{r}
 
@@ -356,10 +342,6 @@ resumen_asistencia <- data.frame(
   Cantidad = c(length(usuarios_con_asistencia), usuarios_sin_asistencia, total_usuarios),
   Porcentaje = c(porcentaje_asistencia, 100 - porcentaje_asistencia, 100)
 )
-
-knitr::kable(resumen_asistencia, 
-             caption = "Usuarios que aplican control de asistencia online",
-             booktabs = TRUE)
 
 # Gráfico
 ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"), 
