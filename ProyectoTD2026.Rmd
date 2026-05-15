@@ -1027,7 +1027,7 @@ knitr::kable(usuarios_antiguos,
 
 #Tabla resumen
 
-```{r tabla proporciones}
+```{r tabla-proporciones}
 porcentaje_interacc_directa <- logs %>%
   mutate(tipo = if_else(
     !is.na(`Usuario afectado`) & `Nombre completo del usuario` != `Usuario afectado`,
@@ -1043,7 +1043,7 @@ knitr::kable(porcentaje_interacc_directa,
 #Grafico
 
 
-```{r grafico proporciones}
+```{r grafico-proporciones}
 ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
   geom_bar(stat = "identity") +
   coord_polar("y")+
@@ -1059,9 +1059,11 @@ ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
 
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
+La proporción de interacciones directas es fácil de calcular clasificando los eventos en dos categorías según la condición "Usuario != Usuario afectado". La tabla resultante es \@ref(tab:tabla-proporciones}. Solo alrededor del 14% de las interacciones son directas.
+
 #Tabla resumen
 
-```{r tabla eventos y roles}
+```{r tabla-eventos-y-roles}
 eventos_interacc_directa <- logs %>%
   filter(!is.na(`Usuario afectado`),
          `Nombre completo del usuario` != `Usuario afectado`) %>%
@@ -1089,7 +1091,7 @@ knitr::kable(actores_interacc,
 
 #Grafico
 
-```{r grafico eventos y roles}     
+```{r grafico-eventos-y-roles}     
 
 eventos_interacc_directa %>%
   left_join(
