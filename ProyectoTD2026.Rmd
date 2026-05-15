@@ -419,6 +419,7 @@ Antes de visualizar en una gráfica los datos vamos a realizar una tabla donde e
 
 ```{r}
 #Tabla de resultados
+knitr::kable(head(actividad_por_hora, 10), caption = "Analisis de Horas Pico", booktabs = TRUE)
 
 ```
 
@@ -482,11 +483,9 @@ Vamos a realizar una tabla para poder visualizar los datos que vamos a usar desp
 
 ```{r}
 #Tabla 
-knitr::kable(interaccion_horaria %>% filter(Dia == "lunes"), 
-             caption = "Registro de actividad detallada: Lunes",
-             booktabs = TRUE)
-```
+knitr::kable(interaccion_horaria %>% filter(Dia == "lunes"), caption = "Registro de actividad detallada: Lunes", booktabs = TRUE)
 
+```
 Como hemos comentado antes, hemos visualizado este apartado con un mapa de calor, esto se debe a que grácias a este tipo de visualización se pueden apreciar patrones de temporales en registros.
 Hemos hecho una escala cromática que define el degradado de color, en él hemos puesto de color naranja las horas con menor actividad frente el color azul que representa las horas con mayor actividad.
 
