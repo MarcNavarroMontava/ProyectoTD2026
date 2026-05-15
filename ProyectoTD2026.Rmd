@@ -572,18 +572,20 @@ En la Tabla \@ref(tab:outliers-sesiones) se identifican los usuarios con los may
 ```{r outliers-sesiones-plot, fig.cap="Distribución de gaps entre eventos consecutivos (escala log)"}
 
 ggplot(gaps, aes(x = gap_minutos)) +
-  geom_histogram(fill = "steelblue", bins = 50, color = "white") +
+  geom_histogram(fill = "maroon", bins = 50, color = "white") +
   scale_x_log10(labels = scales::comma,
                 breaks = c(1, 10, 60, 240, 1440, 10080)) +
-  geom_vline(xintercept = lim_gap, color = "red", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = lim_gap, color = "darkgreen", linetype = "dashed", linewidth = 1) +
   annotate("text", x = lim_gap * 1.5, y = Inf,
            label = paste0("P99 = ", round(lim_gap, 0), " min"),
-           vjust = 2, color = "red", fontface = "bold") +
+           vjust = 2, color = "navy", fontface = "bold") +
   labs(title = "Distribución de Gaps entre Eventos Consecutivos por Usuario",
        subtitle = "Escala logarítmica. Línea roja = umbral P99.",
        x = "Minutos de inactividad (log10)", y = "Número de gaps") +
   theme_minimal()
 ```
+La mayor parte de los gaps son cortos (menos de una hora), lo que indica sesiones de uso continuo. Los gaps extremos (> P99) superan el equivalente a varios días, y corresponden principalmente a periodos entre clases, vacaciones o a usuarios que dejaron de usar la plataforma temporalmente. No se detectan patrones que sugieran errores de registro.
+
 
 ## ¿Qué tipo de relación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 
