@@ -1,5 +1,5 @@
 ---
-title: "Proyecto TD 2026 - Fase 1"
+title: "Proyecto TD 2026"
 author: "Grupo B"
 date: "6 de abril de 2026"
 output:
