@@ -524,6 +524,22 @@ knitr::kable(act_hora,
 ```
 Como se observa en la Tabla \@ref(tab:outliers-horarios), las horas con |Z| > 2 son aquellas que se desvían significativamente de la media global. La Figura \@ref(fig:outliers-horarios-plot) muestra estas horas destacadas en rojo junto con las barras de error.
 
+```{r outliers-horarios-plot, fig.cap="Media de actividad por hora con identificación de outliers"}
+ggplot(act_hora, aes(x = h, y = media, fill = outlier)) +
+  geom_col(color = "white", alpha = 0.9) +
+  geom_errorbar(aes(ymin = media - sd, ymax = media + sd),
+                width = 0.4, color = "darkgrey") +
+  scale_fill_manual(values = c("TRUE" = "maroon", "FALSE" = "darkkhaki"),
+                    labels = c("TRUE" = "Outlier (|Z|>2)", "FALSE" = "Normal")) +
+  scale_x_continuous(breaks = 0:23) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(title = "Actividad media por hora del día",
+       subtitle = "Barras de error = ±1 SD. Rojo = hora estadísticamente anómala.",
+       x = "Hora (0-23h)", y = "Media de eventos", fill = NULL) +
+  theme_minimal(base_size = 13)
+```
+Las horas con Z-score elevado coinciden con los horarios habituales de clase (franja de mañana), lo que confirma que la actividad en Moodle está muy estructurada por el calendario académico. Las horas nocturnas o de madrugada con algún pico puntual podrían indicar sesiones de estudio intensivo antes de entregas.
+
 
 # Preguntas
 
