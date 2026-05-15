@@ -215,7 +215,7 @@ Segundo, aparece un nuevo nombre de usuario distinto al que habíamos visto en `
 
 Es sumamente importante porque es posible que este filtrado nos permita obtener los usuarios que tienen permisos superiores en el moodle del aula virtual. Lo extraño es que este nuevo usuario `U0125` no aparece o tarda en aparecer hasta dentro de mucho tiempo, ya que están ordenados los registros de más recientes a más antiguos, en la tabla de `logs_afectados`, lo que quiere decir que las (supuestas) modificaciones `logs_na_ip`no fueron hechas hasta hace mucho más tiempo que en la tabla de `logs_afectados`
 
-## falta tabla explicativa o grafica
+## Falta la tabla explicativa o grafica
 
 ¿Qué eventos provocan esos NAs?
 
@@ -234,6 +234,7 @@ Como se observa en la Tabla \@ref(tab:tabla-eventos_NA), la mayor parte de event
 
 
 Visualizamos el patrón
+
 ```{r figura-eventos_NA, fig.cap="Frecuencia de los eventos que provocan más NAs"}
 ggplot(analisis_na_ip,aes(x=reorder(`Nombre evento`,`Cantidad de NAs`),y = `Cantidad de NAs`))+
   geom_col(fill="darkred", alpha = 0.8) +
@@ -247,10 +248,7 @@ ggplot(analisis_na_ip,aes(x=reorder(`Nombre evento`,`Cantidad de NAs`),y = `Cant
 
 Como se observa en la figura \@ref(fig:figura-logs) se representan todos los eventos que han provocado datos faltantes en la dirección IP.
 
-
 Tras analizar los datos, se detectaron 2.857 registros sin Dirección IP. En lugar de descartarlos, se analizó su mecanismo de pérdida. El gráfico demuestra empíricamente que estos NAs no son MCAR (Missing Completely At Random) por fallos de conexión, sino que siguen un patrón condicionado (MAR - Missing At Random). Los valores faltantes se concentran masivamente en eventos de tipo `Evento de calendario actualizado` o `Calificación borrrada`. Esto confirma que se trata de procesos automatizados ejecutados en el back-end por el propio sistema o la base de datos, los cuales, por su propia naturaleza arquitectónica, no registran una IP de cliente. Por tanto, estos NAs son estructuralmente válidos y conservan información vital sobre el mantenimiento de la plataforma.
-
-
 
 Para comprobar empíricamente que se trata de un MAR, demostraremos que el hecho de que falte una dirección IP dependerá del evento que se esté tratando.
 
@@ -265,6 +263,7 @@ comparativa_na <- bind_rows(head(eventos_sin_ip, 10), eventos_con_ip)
 
 Debido a que ya somos capaces de determinar que eventos son más probables que hayan sido realizados por roles de administración, podemos determinar un criterio para ser capaces de determinar los usuarios que imparten ese rol. 
 ## falta un kable y una explicacion de lo que se esta viendo (mejor una gráfica)
+
 ```{r}
 eventos_admin <- c("Evento de calendario actualizado", 
                    "Calificación borrada", 
@@ -313,9 +312,7 @@ actividad_usuario <- actividad_usuario %>%
   ))
 ```
 
-
 # Preguntas
-
 
 ## ¿Qué tipo de relación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 
@@ -401,22 +398,20 @@ ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"
 Para responder esta pregunta podemos tener diversas variables a evaluar como las horas a lo largo de todo el dia y los registros que hay por hora. Para esto cargamos los datos de la columna 'Horas' que hemos cargado previamente en el 'logs'. Usamos la libreria lubridate para ayudarnos con la resolución del problema.
 Por intuición podemos decir que es muy probable que la hora del dia donde hay más registros tenga relación con el horario de clases, el decir nos podemos situar en un intervalo entre las 9 y las 14 horas, además para ser un poco más específicos podiamos considerar el hecho que si hay semana de prácticas en mucho más probable que el número de registros aumente, puesto que el número de alumnos en la clase incrementa.
 
-#Primero vamos a agrupar por hora para saber el pico donde hay más actividad
-
 Para hacer esto hemos creado una función con el nombre $actividad_por_hora$ que toma la lista de registros, extrae la hora de cada uno, cuenta cuantas veces aparece cada uno y hace una tabla donde ordena las horas siendo la primera, 'hora pico',  con la mayor actividad de registros hasta la última con menor acrividad de registros.
 
 ```{r}
+#Primero vamos a agrupar por hora para saber el pico donde hay más actividad
 actividad_por_hora <- logs %>% mutate(Solo_Hora = hour(Hora)) %>%
   group_by(Solo_Hora) %>%
   summarise(Total_Registros = n(), .groups = 'drop') %>%
   arrange(desc(Total_Registros))
 ```
-#Ahora extraemos la hora más activa
-
 Extraemos de la tabla $actividad_por_hora$ la información específica que necesitamos para crear posteriormente la gráfica donde se visualizarán los resultados obtenidos. Ya que en el paso anterior ordenamos las horas por número de registros de forma descendente, la primera fila de esta tabla corresponderá a la 'hora pico'.
 La primera variable $hora_pico$ busca la hora que tuvo más actividad, como hemos explicado antes tomamos solo el primer valor de la tabla anterior, por eso ponemos el índice [1]. La segunda varaible $max_logs$ calcula el número de máximo de registros.
 
 ```{r}
+#Ahora extraemos la hora más activa
 hora_pico <- actividad_por_hora$Solo_Hora[1]
 max_logs <- actividad_por_hora$Total_Registros[1]
 ```
