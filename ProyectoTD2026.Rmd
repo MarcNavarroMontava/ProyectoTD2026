@@ -19,36 +19,6 @@ También se registran las interacciones con herramientas como GitHub y RMarkdown
 
 Además de las acciones de los estudiantes, el registro incluye las actividades de gestión del profesor, como la actualización de calificaciones o la creación de nuevos recursos.
 
-# PREGUNTAS
-
--- ¿Cuales han sido las tareas más realizadas por los estudiantes?¿Por qué? - Marc 
-
--- ¿Cuantos estudiantes aplican el control de asistencia online, tiene alguna relación con las tareas más realizadas? - Marc
-
-
--- ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma? - Silvia
-
--- ¿Qué día de la semana hay más actividad?¿Coincide con alguna fecha significativa? - Silvia
-
--- ¿Existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo? - Silvia
-
-
--- ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web? ¿Hay momentos típicos para los componentes como  "Tarea", "Cuestionario", "Carpeta", "Encuesta", ... - Nav
-
--- Detección de outliers - Nav
-
-
--- ¿Hay estudiantes que nunca entraron a ciertas secciones?¿Podemos asumir una clara distinción entre estudiantes y profesores sabiendo esto? - Lucía
-
--- ¿Que tan antiguos son los logs registrados? ¿Puede tener alguna relación con aquellos estudiantes que nunca entraron a ciertas secciones? ¿Pueden haberse registrado logs de alumnos de otros años? - Lucía
-
--- De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
-
--- ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
-
--- Detección de roles administrativos mediante el análisis de la arquitectura de datos faltantes (IP) - Andrés Noza
-
--- ¿Existe una polarización en el uso de la plataforma? ¿Qué usuarios concretos concentran la mayor cantidad de eventos críticos (como entregas o calificaciones) frente a la mayoría pasiva? - Andrés Noza
 
 #Carga de librerias
 
