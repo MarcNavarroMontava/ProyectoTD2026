@@ -370,29 +370,6 @@ usamos el método IQR (rango intercuartílico) para los casos 1, 2 y 3,que es ro
 
 
 
-```{r}
-#contamos el total de eventos por usuario
-actividad_usuario <- logs %>%
-  count(`Nombre completo del usuario`, name = "total_eventos") %>%
-  arrange(desc(total_eventos))
-
-#calculamos los límites IQR
-q1 <- quantile(actividad_usuario$total_eventos, 0.25)
-q3 <- quantile(actividad_usuario$total_eventos, 0.75)
-iqr <- q3 - q1
-
-limite_inf <- q1 - 1.5 * iqr  # Umbral inferior
-limite_sup <- q3 + 1.5 * iqr  # Umbral superior
-
-#etiquetamos cada usuario
-actividad_usuario <- actividad_usuario %>%
-  mutate(tipo = case_when(
-    total_eventos > limite_sup ~ "Outlier alto (posible profesor/admin)",
-    total_eventos < max(limite_inf, 0) ~ "Outlier bajo (muy poca actividad)",
-    TRUE ~ "Normal"
-  ))
-```
-
 
 # Preguntas
 
