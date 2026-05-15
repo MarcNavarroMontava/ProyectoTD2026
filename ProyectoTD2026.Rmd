@@ -481,7 +481,8 @@ interaccion_horaria <- logs %>%
 ```
 #Visualización en un mapa de calor (Heatmap)
 
-
+Como hemos comentado antes, hemos visualizado este apartado con un mapa de calor, esto se debe a que grácias a este tipo de visualización se pueden apreciar patrones de temporales en registros.
+Hemos hecho una escala cromática que define el degradado de color, en él hemos puesto de color naranja las horas con menor actividad frente el color azul que representa las horas con mayor actividad.
 
 ```{r}
 ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
