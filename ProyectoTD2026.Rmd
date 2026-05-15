@@ -523,6 +523,8 @@ knitr::kable(act_hora,
              format.args = list(big.mark = "."),
              booktabs = TRUE)
 ```
+Como se observa en la Tabla \@ref(tab:outliers-horarios), las horas con |Z| > 2 son aquellas que se desvían significativamente de la media global. La Figura \@ref(fig:outliers-horarios-plot) muestra estas horas destacadas en rojo junto con las barras de error.
+
 
 # Preguntas
 
