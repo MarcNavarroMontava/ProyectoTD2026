@@ -567,6 +567,24 @@ knitr::kable(
   booktabs = TRUE)
 ```
 
+En la Tabla \@ref(tab:outliers-sesiones) se identifican los usuarios con los mayores periodos de inactividad entre dos eventos consecutivos. La Figura \@ref(fig:outliers-sesiones-plot) muestra la distribución completa de todos los gaps en escala logarítmica, con la línea del percentil P99 como referencia.
+
+```{r outliers-sesiones-plot, fig.cap="Distribución de gaps entre eventos consecutivos (escala log)"}
+
+ggplot(gaps, aes(x = gap_minutos)) +
+  geom_histogram(fill = "steelblue", bins = 50, color = "white") +
+  scale_x_log10(labels = scales::comma,
+                breaks = c(1, 10, 60, 240, 1440, 10080)) +
+  geom_vline(xintercept = lim_gap, color = "red", linetype = "dashed", linewidth = 1) +
+  annotate("text", x = lim_gap * 1.5, y = Inf,
+           label = paste0("P99 = ", round(lim_gap, 0), " min"),
+           vjust = 2, color = "red", fontface = "bold") +
+  labs(title = "Distribución de Gaps entre Eventos Consecutivos por Usuario",
+       subtitle = "Escala logarítmica. Línea roja = umbral P99.",
+       x = "Minutos de inactividad (log10)", y = "Número de gaps") +
+  theme_minimal()
+```
+
 ## ¿Qué tipo de relación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 
 ## ¿Cuales han sido las tareas más realizadas por los estudiantes?¿Por qué? - Marc
