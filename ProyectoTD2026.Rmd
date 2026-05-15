@@ -552,6 +552,9 @@ ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
 ```
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
+No podemos saber si un estudiante nunca entró a una sección, ya que los logs solo registran acciones que ocurrieron. Lo que sí podemos ver es qué componentes concentran menos usuarios y si el patrón de uso nos da pistas sobre el rol de cada uno, ya que estudiantes y profesores acceden a componentes muy distintos.
+Para responderla hemos creado la variable accesos que agrupa los registros por usuario, calcula cuántas secciones distintas visitó cada uno con n_distinct y cuántos eventos generó en total con n(), ordenándolo de menor a mayor
+
 ```{r secciones-por-usuario}
 accesos <- logs %>%
   group_by(`Nombre completo del usuario`) %>%
@@ -562,6 +565,8 @@ accesos <- logs %>%
 knitr::kable(head(accesos, 10),
              caption = "Usuarios con menos secciones visitadas",
              booktabs = TRUE)
+
+Para visualizarlo creamos un histograma con geom_histogram que muestra cuántos usuarios hay según el número de secciones que han visitado
 
 ggplot(accesos, aes(x = secciones_visitadas)) +
   geom_histogram(fill = "coral", bins = 20) +
@@ -576,11 +581,13 @@ accesos %>%
   count(rol) %>%
   knitr::kable(caption = "Distinción entre posibles profesores y estudiantes",
                booktabs = TRUE)
-
-#Los usuarios con menos secciones visitadas podrían ser estudiantes que dejaron el curso o se incorporaron mas tarde y los usuarios con muchas secciones visitadas y mas número de eventos corresponden seguramente al profesor
+ 
+se ve claramente que componentes como Sistema, Tarea o Cuestionario son accedidos por casi todos los usuarios, mientras que otros como Registros, Actividad del curso o Participación en el curso solo los usa 1 usuario. Estos últimos son componentes claramente administrativos, lo que nos permite asumir que ese único usuario es el profesor
 ```
 
 ## ¿Qué tan antiguos son los logs? ¿Pueden ser de otros años? - Lucía
+
+Para saber la antigüedad he creado la variable rango_fechas donde calculo la fecha más antigua, la más reciente y los días totales que hay entre ambas
 
 ```{r antiguedad-logs}
 rango_fechas <- logs %>%
@@ -594,6 +601,10 @@ knitr::kable(rango_fechas,
              caption = "Rango temporal de los logs registrados",
              booktabs = TRUE)
 
+los datos van desde julio de 2024 hasta marzo de 2026, unos 600 días en total O sea, los logs no son solo del curso 2024-2025, sino que cubren más tiempo
+Para ver cómo se reparte esa actividad a lo largo del tiempo agrupamos los eventos por mes con floor_date y lo representamos en un gráfico de barras
+
+
 logs %>%
   mutate(mes = floor_date(Hora, "month")) %>%
   count(mes) %>%
@@ -602,6 +613,9 @@ logs %>%
   labs(title = "Actividad mensual: ¿hay registros de otros años?",
        x = "Mes", y = "Número de eventos") +
   theme_minimal()
+
+Se ven dos picos grandes: uno en enero-febrero de 2025 y otro en julio de 2025 (coinciden con exámenes o entregas)
+filtramos los usuarios cuya última conexión fue antes de septiembre de 2024 para ver si hay alguien que sea de un curso anterior
 
 usuarios_antiguos <- logs %>%
   group_by(`Nombre completo del usuario`) %>%
@@ -614,8 +628,7 @@ knitr::kable(usuarios_antiguos,
              caption = "Usuarios que solo aparecen en fechas antiguas",
              booktabs = TRUE)
 
-#la mayoría de registros son del curso 2024-2025, si hubiera datos de años anteriores, explicaría por qué hay usuarios con tan poca actividad, puede que sean alumnos de otros cursos
-```
+Como se ve en la Tabla, solo "U0124" y "U0093" tienen toda su actividad en julio de 2024, así que son de un curso anterior y no del 2024-2025.
 
 
 
