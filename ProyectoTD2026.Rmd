@@ -364,34 +364,26 @@ print(head(clasificacion_estricta, 15))
 ```
 
 
+<<<<<<< HEAD
 
 ## Resolución de NAs para la columna `Dirección IP`
 
 
 ## Análisis de outliers...
+=======
+## Análisis de outliers
+>>>>>>> ebcc369d0e87c057a02a9b9499c6785667ad3f0a
 
-```{r}
-#contamos el total de eventos por usuario
-actividad_usuario <- logs %>%
-  count(`Nombre completo del usuario`, name = "total_eventos") %>%
-  arrange(desc(total_eventos))
+Para datos de logs (series temporales de eventos), los outliers más
+relevantes son:
+1. Usuarios con un volumen de actividad anormalmente alto o bajo.
+2. Horas del día con picos/caídas inesperadas.
+3. Días concretos con actividad atípica (posibles incidencias o entregas).
+4. Sesiones de usuario extremadamente largas (inactividad prolongada).
+usamos el método IQR (rango intercuartílico) para los casos 1, 2 y 3,que es robusto frente a distribuciones asimétricas como la de los logs.Para el caso 4 usamos percentiles altos (P95, P99).
 
-#calculamos los límites IQR
-q1 <- quantile(actividad_usuario$total_eventos, 0.25)
-q3 <- quantile(actividad_usuario$total_eventos, 0.75)
-iqr <- q3 - q1
 
-limite_inf <- q1 - 1.5 * iqr  # Umbral inferior
-limite_sup <- q3 + 1.5 * iqr  # Umbral superior
 
-#etiquetamos cada usuario
-actividad_usuario <- actividad_usuario %>%
-  mutate(tipo = case_when(
-    total_eventos > limite_sup ~ "Outlier alto (posible profesor/admin)",
-    total_eventos < max(limite_inf, 0) ~ "Outlier bajo (muy poca actividad)",
-    TRUE ~ "Normal"
-  ))
-```
 
 
 # Preguntas
