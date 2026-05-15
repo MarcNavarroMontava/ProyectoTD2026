@@ -42,10 +42,9 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 
 -- ¿Que tan antiguos son los logs registrados? ¿Puede tener alguna relación con aquellos estudiantes que nunca entraron a ciertas secciones? ¿Pueden haberse registrado logs de alumnos de otros años? - Lucía
 
+-- De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
 
 -- ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
-
--- De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
 
 -- Detección de roles administrativos mediante el análisis de la arquitectura de datos faltantes (IP) - Andrés Noza
 
@@ -625,71 +624,6 @@ ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
   labs(title = "Mapa de Calor: Interacción Día vs Hora en Moodle", x = "Franja Horaria (0-23h)", y = "Día de la Semana", fill = "Registros")
 ```
 
-
-## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
-
-
-#head(logs)
-#colnames(logs)
-#logs %>%
-# 
-#unique(logs$`Nombre evento`)
-
-#Tabla resumen
-
-```{r}
-eventos_interacc_directa <- logs %>%
-  filter(!is.na(`Usuario afectado`),
-         `Nombre completo del usuario` != `Usuario afectado`) %>%
-  count(`Nombre evento`, sort = TRUE)
-
-eventos_interacc_directa
-```
-
-#Grafico
-
-```{r}
-ggplot(eventos_interacc_directa, aes(x = `Nombre evento`, y = n))+
-  geom_col(fill = "steelblue", alpha = 0.8)+
-  coord_flip()+
-  labs(title = "Eventos con interacción entre usuarios distintos",
-      x = "Nombre del evento",
-      y = "Número de interacciones") +
-  scale_y_log10() +
-  theme_minimal()
-
-```
-
-## De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
-
-#Tabla resumen
-
-```{r}
-porcentaje_interacc_directa <- logs %>%
-  mutate(tipo = if_else(
-    !is.na(`Usuario afectado`) & `Nombre completo del usuario` != `Usuario afectado`,
-    "Interacción directa", "Lectura/Navegación"
-  )) %>%
-  count(tipo) %>%
-  mutate(porcentaje = round(n / sum(n) * 100, 2))
-
-porcentaje_interacc_directa
-```
-
-#Grafico
-
-
-```{r}
-ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
-  geom_bar(stat = "identity") +
-  coord_polar("y")+
-  labs(title = "Proporción real de eventos de interacción directa")+
-  geom_text(aes(label = paste0(porcentaje, "%")), 
-            position = position_stack(vjust = 0.5),
-            color = "black", fontface = "bold", size = 5)+
-  theme_void()
-
-```
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
 ```{r secciones-por-usuario}
@@ -755,6 +689,95 @@ knitr::kable(usuarios_antiguos,
              booktabs = TRUE)
 
 #la mayoría de registros son del curso 2024-2025, si hubiera datos de años anteriores, explicaría por qué hay usuarios con tan poca actividad, puede que sean alumnos de otros cursos
+```
+
+## De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
+
+#Tabla resumen
+
+```{r tabla proporciones}
+porcentaje_interacc_directa <- logs %>%
+  mutate(tipo = if_else(
+    !is.na(`Usuario afectado`) & `Nombre completo del usuario` != `Usuario afectado`,
+    "Interacción directa", "Lectura/Navegación")) %>%
+  count(tipo) %>%
+  mutate(porcentaje = round(n / sum(n) * 100, 2))
+
+knitr::kable(porcentaje_interacc_directa,
+             caption = "Proporción de eventos de interacción directa vs lectura/navegación",
+             booktabs = TRUE)
+```
+
+#Grafico
+
+
+```{r grafico proporciones}
+ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
+  geom_bar(stat = "identity") +
+  coord_polar("y")+
+  scale_fill_manual(values = c("Interacción directa" = "darkred",
+                               "Lectura/Navegación" = "steelblue"))+
+  labs(title = "Proporción real de eventos de interacción directa")+
+  geom_text(aes(label = paste0(porcentaje, "%")), 
+            position = position_stack(vjust = 0.5),
+            color = "white", fontface = "bold", size = 5)+
+  theme_void()
+
+```
+
+## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
+
+#Tabla resumen
+
+```{r tabla eventos y roles}
+eventos_interacc_directa <- logs %>%
+  filter(!is.na(`Usuario afectado`),
+         `Nombre completo del usuario` != `Usuario afectado`) %>%
+  count(`Nombre evento`, sort = TRUE)
+
+actores_interacc <- logs %>%
+  filter(!is.na(`Usuario afectado`),
+         `Nombre completo del usuario` != `Usuario afectado`) %>%
+  left_join(
+    accesos %>%
+      mutate(rol = ifelse(total_eventos > quantile(total_eventos, 0.90),
+                          "Posible profesor/admin", "Posible estudiante")) %>%
+      select(`Nombre completo del usuario`, rol),
+    by = "Nombre completo del usuario") %>%
+  
+  count(`Nombre evento`, rol) %>%
+  pivot_wider(names_from = rol, values_from = n, values_fill = 0) %>%
+  mutate(total = rowSums(across(where(is.numeric)))) %>%
+  arrange(desc(total))
+
+knitr::kable(actores_interacc,
+             caption = "Eventos de interacción directa por rol del actor",
+             booktabs = TRUE)
+```
+
+#Grafico
+
+```{r grafico eventos y roles}     
+
+eventos_interacc_directa %>%
+  left_join(
+    actores_interacc %>% 
+      mutate(pct_prof = round(`Posible profesor/admin` / total * 100)) %>%
+      select(`Nombre evento`, pct_prof),
+    by = "Nombre evento") %>%
+  mutate(pct_prof = replace_na(pct_prof, 0)) %>%
+  
+  ggplot(aes(x = reorder(`Nombre evento`, n), y = n)) +
+  geom_col(fill = "steelblue", alpha = 0.9) +
+  geom_label(aes(label = paste0(pct_prof, "% prof")),
+           hjust = -0.05, size = 4,
+           fill = "darkred", color = "white", fontface = "bold") +
+  coord_flip() +
+  scale_y_log10(limits = c(1, 50000)) +
+  labs(title = "Eventos con interacción entre usuarios distintos",
+       x = "Nombre del evento",
+       y = "Número de interacciones (escala log)") +
+  theme_minimal()
 ```
 
 
