@@ -465,8 +465,12 @@ ggplot(actividad_semanal, aes(x = Dia_Semana, y = Total_Registros)) +
 
 ## ¿Existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo? - Silvia
 
+En este caso hemos planteado una pregunta un poco más elaborada para así obtener una gráfica diferente, por esto hemos hecho uso de un heatmap para visualizarla.
+
 
 #En esta función cruzamos varias variables como día y hora
+
+En esta función hemos creado la variable $interaccion_horaria$ que nos permitirá extraer información de la columna sobre el dia de la semana, extraer la hora, ordenarlo y agruparlo, además usamos la funcion 'drop()' que el data frame sea más sencillo de manipular.
 
 ```{r}
 interaccion_horaria <- logs %>%
@@ -476,6 +480,8 @@ interaccion_horaria <- logs %>%
   summarise(Total = n(), .groups = 'drop')
 ```
 #Visualización en un mapa de calor (Heatmap)
+
+
 
 ```{r}
 ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
@@ -552,7 +558,7 @@ ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
 ```
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
-#No podemos saber si un estudiante nunca entró a una sección, ya que los logs solo registran acciones que ocurrieron. Lo que sí podemos ver es qué componentes concentran menos usuarios y si el patrón de uso nos da pistas sobre el rol de cada uno, ya que estudiantes y profesores acceden a componentes muy distintos.
+No podemos saber si un estudiante nunca entró a una sección, ya que los logs solo registran acciones que ocurrieron. Lo que sí podemos ver es qué componentes concentran menos usuarios y si el patrón de uso nos da pistas sobre el rol de cada uno, ya que estudiantes y profesores acceden a componentes muy distintos.
 Para responderla hemos creado la variable accesos que agrupa los registros por usuario, calcula cuántas secciones distintas visitó cada uno con n_distinct y cuántos eventos generó en total con n(), ordenándolo de menor a mayor
 
 ```{r secciones-por-usuario}
