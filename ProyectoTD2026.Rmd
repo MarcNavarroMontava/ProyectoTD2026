@@ -1,5 +1,5 @@
 ---
-title: "Proyecto TD 2026"
+title: "Proyecto TD 2026 - Fase 1"
 author: "Grupo B"
 date: "6 de abril de 2026"
 output:
@@ -215,7 +215,7 @@ Segundo, aparece un nuevo nombre de usuario distinto al que habíamos visto en `
 
 Es sumamente importante porque es posible que este filtrado nos permita obtener los usuarios que tienen permisos superiores en el moodle del aula virtual. Lo extraño es que este nuevo usuario `U0125` no aparece o tarda en aparecer hasta dentro de mucho tiempo, ya que están ordenados los registros de más recientes a más antiguos, en la tabla de `logs_afectados`, lo que quiere decir que las (supuestas) modificaciones `logs_na_ip`no fueron hechas hasta hace mucho más tiempo que en la tabla de `logs_afectados`
 
-## Falta la tabla explicativa o grafica
+## falta tabla explicativa o grafica
 
 ¿Qué eventos provocan esos NAs?
 
@@ -234,7 +234,6 @@ Como se observa en la Tabla \@ref(tab:tabla-eventos_NA), la mayor parte de event
 
 
 Visualizamos el patrón
-
 ```{r figura-eventos_NA, fig.cap="Frecuencia de los eventos que provocan más NAs"}
 ggplot(analisis_na_ip,aes(x=reorder(`Nombre evento`,`Cantidad de NAs`),y = `Cantidad de NAs`))+
   geom_col(fill="darkred", alpha = 0.8) +
@@ -248,7 +247,10 @@ ggplot(analisis_na_ip,aes(x=reorder(`Nombre evento`,`Cantidad de NAs`),y = `Cant
 
 Como se observa en la figura \@ref(fig:figura-logs) se representan todos los eventos que han provocado datos faltantes en la dirección IP.
 
+
 Tras analizar los datos, se detectaron 2.857 registros sin Dirección IP. En lugar de descartarlos, se analizó su mecanismo de pérdida. El gráfico demuestra empíricamente que estos NAs no son MCAR (Missing Completely At Random) por fallos de conexión, sino que siguen un patrón condicionado (MAR - Missing At Random). Los valores faltantes se concentran masivamente en eventos de tipo `Evento de calendario actualizado` o `Calificación borrrada`. Esto confirma que se trata de procesos automatizados ejecutados en el back-end por el propio sistema o la base de datos, los cuales, por su propia naturaleza arquitectónica, no registran una IP de cliente. Por tanto, estos NAs son estructuralmente válidos y conservan información vital sobre el mantenimiento de la plataforma.
+
+
 
 Para comprobar empíricamente que se trata de un MAR, demostraremos que el hecho de que falte una dirección IP dependerá del evento que se esté tratando.
 
@@ -263,7 +265,6 @@ comparativa_na <- bind_rows(head(eventos_sin_ip, 10), eventos_con_ip)
 
 Debido a que ya somos capaces de determinar que eventos son más probables que hayan sido realizados por roles de administración, podemos determinar un criterio para ser capaces de determinar los usuarios que imparten ese rol. 
 ## falta un kable y una explicacion de lo que se esta viendo (mejor una gráfica)
-
 ```{r}
 eventos_admin <- c("Evento de calendario actualizado", 
                    "Calificación borrada", 
@@ -286,6 +287,39 @@ head(roles_administrativos)
 
 Los outliers serían aquellos con más probabilidades de ser de la parte de administración.
 Recordemos que este análisis es proveniente de la falta de datos en las IPs, explicada en el apartado anterior.
+
+
+Por lo tanto procederemos marcando los nombres de
+```{r}
+eventos_criticos <- logs %>%
+  filter(str_detect(`Nombre evento`, "(?i)calific|enví|entreg|asign|borrad"))
+```
+
+
+```{r}
+
+polarizacion <- eventos_criticos %>%
+  count(`Nombre completo del usuario`, name = "Volumen_Critico") %>%
+  arrange(desc(Volumen_Critico)) %>%
+  mutate(
+    Ranking = row_number(),
+    Porcentaje_Acumulado = cumsum(Volumen_Critico) / sum(Volumen_Critico) * 100,
+    Total_Usuarios = n()
+  )
+
+ggplot(polarizacion, aes(x = Ranking, y = Porcentaje_Acumulado)) +
+  geom_line(color = "darkred", linewidth = 1.2) +
+  geom_area(fill = "darkred", alpha = 0.2) +
+  geom_hline(yintercept = 80, linetype = "dashed", color = "black") +
+  labs(
+    title = "Polarización en Moodle: Concentración de Eventos Críticos",
+    subtitle = "Una minoría de usuarios ejecuta la inmensa mayoría de acciones de impacto",
+    x = "Usuarios ordenados por volumen de actividad crítica",
+    y = "% Acumulado del total de eventos críticos"
+  ) +
+  theme_minimal()
+```
+
 
 ## Análisis de outliers...
 
@@ -312,7 +346,9 @@ actividad_usuario <- actividad_usuario %>%
   ))
 ```
 
+
 # Preguntas
+
 
 ## ¿Qué tipo de relación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 
@@ -398,34 +434,31 @@ ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"
 Para responder esta pregunta podemos tener diversas variables a evaluar como las horas a lo largo de todo el dia y los registros que hay por hora. Para esto cargamos los datos de la columna 'Horas' que hemos cargado previamente en el 'logs'. Usamos la libreria lubridate para ayudarnos con la resolución del problema.
 Por intuición podemos decir que es muy probable que la hora del dia donde hay más registros tenga relación con el horario de clases, el decir nos podemos situar en un intervalo entre las 9 y las 14 horas, además para ser un poco más específicos podiamos considerar el hecho que si hay semana de prácticas en mucho más probable que el número de registros aumente, puesto que el número de alumnos en la clase incrementa.
 
+#Primero vamos a agrupar por hora para saber el pico donde hay más actividad
+
 Para hacer esto hemos creado una función con el nombre $actividad_por_hora$ que toma la lista de registros, extrae la hora de cada uno, cuenta cuantas veces aparece cada uno y hace una tabla donde ordena las horas siendo la primera, 'hora pico',  con la mayor actividad de registros hasta la última con menor acrividad de registros.
 
 ```{r}
-#Primero vamos a agrupar por hora para saber el pico donde hay más actividad
 actividad_por_hora <- logs %>% mutate(Solo_Hora = hour(Hora)) %>%
   group_by(Solo_Hora) %>%
   summarise(Total_Registros = n(), .groups = 'drop') %>%
   arrange(desc(Total_Registros))
 ```
+#Ahora extraemos la hora más activa
+
 Extraemos de la tabla $actividad_por_hora$ la información específica que necesitamos para crear posteriormente la gráfica donde se visualizarán los resultados obtenidos. Ya que en el paso anterior ordenamos las horas por número de registros de forma descendente, la primera fila de esta tabla corresponderá a la 'hora pico'.
 La primera variable $hora_pico$ busca la hora que tuvo más actividad, como hemos explicado antes tomamos solo el primer valor de la tabla anterior, por eso ponemos el índice [1]. La segunda varaible $max_logs$ calcula el número de máximo de registros.
 
 ```{r}
-#Ahora extraemos la hora más activa
 hora_pico <- actividad_por_hora$Solo_Hora[1]
 max_logs <- actividad_por_hora$Total_Registros[1]
 ```
-Antes de visualizar en una gráfica los datos vamos a realizar una tabla donde explica los resultados obtenidos en nuestros estudio.
 
-```{r}
-#Tabla de resultados
-knitr::kable(head(actividad_por_hora, 10), caption = "Analisis de Horas Pico", booktabs = TRUE)
-
-```
+#Visualización 
 
 Para completar este apartado vamos a visualizar un una gráfica para observar los resultados, para esto hemos usado un tipo de gráfica que visualiza satisfactoriamente y diferencia la hora pico de las horas con menos registros. Usamos un gráfico de areas donde podemos observar que la hora pico con el número de registros más alto corresponde a las 9:00 horas.
+
 ```{r}
-#Visualización 
 ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) + 
   geom_line(color = "blue", size = 1) +
   geom_point(color = "blue", size = 2) +
@@ -438,11 +471,12 @@ ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) +
   
 Esta pregunta está muy relacionada con la pregunta anterior ya que queremos saber qué dia de la semana hay más actividad, y en la preguntaa anterior queriamos saber que horqa del dia hay más actividad, por lo que el procedimiento va a ser bastqante parecido.
 
+#Primero creamos un función que nos permita extraer parte de la fecha que queramos comprobar
+
 Escribimos una función que llamaremos $actividad_semanal$ donde mostraremos la actividad acumula según el dia de la semana. Primero extraemos el nombre del día a partir de la fecha y la hora, para esto hemos creado una nueva columna con los dias de la semana, también agrupamos todos los registros de los día de la semana.
 Ahora ordenamos los días de la semana en el formato (lunes, martes, miércoles, jueves, viernes, sábado, domingo), ya que R las palabras alfabéticamente.
 
 ```{r}
-#Primero creamos un función que nos permita extraer parte de la fecha que queramos comprobar
 actividad_semanal <- logs %>%
   mutate(Dia_Semana = weekdays(Hora)) %>%
   group_by(Dia_Semana) %>%
@@ -450,53 +484,40 @@ actividad_semanal <- logs %>%
   mutate(Dia_Semana = factor(Dia_Semana, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   arrange(Dia_Semana)
 ```
-Antes de realizar la gráfica con los resultados obtenidos vamos a realizar una función donde representemos los resultados
 
-```{r}
-#Tabla
+#Visualización en un gráfico de barras
 
-```
 Para visualizar el día de la semana con mayor actividad hacemos un gráfico de barras que representa de forma visual y muy intuitiva qué dia es el más frecuentado, ya que esta columna será la más grande. Además podemos ver si a lo largo de la semana hay una actividad similar o si incrementa de forma exponecial en algún dia concreto.
 
 ```{r}
-#Visualización en un gráfico de barras
 ggplot(actividad_semanal, aes(x = Dia_Semana, y = Total_Registros)) +
   geom_col(fill = "orange", color = "white") +
   labs(title = "Actividad en AulaVirtual por Día de la Semana", x = "Día de la semana", y = "Número total de registros")
 ```
 
+
 ## ¿Existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo? - Silvia
 
-En este caso hemos planteado una pregunta un poco más elaborada para así obtener una gráfica diferente, por esto hemos hecho uso de un heatmap para visualizarla.
 
-En esta función hemos creado la variable $interaccion_horaria$ que nos permitirá extraer información de la columna sobre el dia de la semana, extraer la hora, ordenarlo y agruparlo, además usamos la funcion 'drop()' que el data frame sea más sencillo de manipular.
+#En esta función cruzamos varias variables como día y hora
 
 ```{r}
-#En esta función cruzamos varias variables como día y hora
 interaccion_horaria <- logs %>%
   mutate(Dia = format(Hora, "%A"), Hora_Num = hour(Hora)) %>%
   mutate(Dia = factor(Dia, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   group_by(Dia, Hora_Num) %>%
   summarise(Total = n(), .groups = 'drop')
 ```
-Vamos a realizar una tabla para poder visualizar los datos que vamos a usar después para representar en la gráfica 
-
-```{r}
-#Tabla 
-knitr::kable(interaccion_horaria %>% filter(Dia == "lunes"), caption = "Registro de actividad detallada: Lunes", booktabs = TRUE)
-
-```
-Como hemos comentado antes, hemos visualizado este apartado con un mapa de calor, esto se debe a que grácias a este tipo de visualización se pueden apreciar patrones de temporales en registros.
-Hemos hecho una escala cromática que define el degradado de color, en él hemos puesto de color naranja las horas con menor actividad frente el color azul que representa las horas con mayor actividad.
-
-```{r}
 #Visualización en un mapa de calor (Heatmap)
+
+```{r}
 ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
   geom_tile(color = "white") + 
   scale_fill_gradient(low = "orange", high = "blue") +
   scale_x_continuous(breaks = 0:23) +
   labs(title = "Mapa de Calor: Interacción Día vs Hora en Moodle", x = "Franja Horaria (0-23h)", y = "Día de la Semana", fill = "Registros")
 ```
+
 
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
@@ -564,9 +585,6 @@ ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
 ```
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
-No podemos saber si un estudiante nunca entró a una sección, ya que los logs solo registran acciones que ocurrieron. Lo que sí podemos ver es qué componentes concentran menos usuarios y si el patrón de uso nos da pistas sobre el rol de cada uno, ya que estudiantes y profesores acceden a componentes muy distintos.
-Para responderla hemos creado la variable accesos que agrupa los registros por usuario, calcula cuántas secciones distintas visitó cada uno con n_distinct y cuántos eventos generó en total con n(), ordenándolo de menor a mayor
-
 ```{r secciones-por-usuario}
 accesos <- logs %>%
   group_by(`Nombre completo del usuario`) %>%
@@ -577,8 +595,6 @@ accesos <- logs %>%
 knitr::kable(head(accesos, 10),
              caption = "Usuarios con menos secciones visitadas",
              booktabs = TRUE)
-
-#Para visualizarlo creamos un histograma con geom_histogram que muestra cuántos usuarios hay según el número de secciones que han visitado
 
 ggplot(accesos, aes(x = secciones_visitadas)) +
   geom_histogram(fill = "coral", bins = 20) +
@@ -593,14 +609,11 @@ accesos %>%
   count(rol) %>%
   knitr::kable(caption = "Distinción entre posibles profesores y estudiantes",
                booktabs = TRUE)
- 
-```
-Se ve claramente que componentes como Sistema, Tarea o Cuestionario son accedidos por casi todos los usuarios, mientras que otros como Registros, Actividad del curso o Participación en el curso solo los usa 1 usuario. Estos últimos son componentes claramente administrativos, lo que nos permite asumir que ese único usuario es el profesor
 
+#Los usuarios con menos secciones visitadas podrían ser estudiantes que dejaron el curso o se incorporaron mas tarde y los usuarios con muchas secciones visitadas y mas número de eventos corresponden seguramente al profesor
+```
 
 ## ¿Qué tan antiguos son los logs? ¿Pueden ser de otros años? - Lucía
-
-Para saber la antigüedad he creado la variable rango_fechas donde calculo la fecha más antigua, la más reciente y los días totales que hay entre ambas
 
 ```{r antiguedad-logs}
 rango_fechas <- logs %>%
@@ -613,11 +626,7 @@ rango_fechas <- logs %>%
 knitr::kable(rango_fechas,
              caption = "Rango temporal de los logs registrados",
              booktabs = TRUE)
-```
-Los datos van desde julio de 2024 hasta marzo de 2026, unos 600 días en total O sea, los logs no son solo del curso 2024-2025, sino que cubren más tiempo
-Para ver cómo se reparte esa actividad a lo largo del tiempo agrupamos los eventos por mes con floor_date y lo representamos en un gráfico de barras
 
-```{r}
 logs %>%
   mutate(mes = floor_date(Hora, "month")) %>%
   count(mes) %>%
@@ -626,11 +635,7 @@ logs %>%
   labs(title = "Actividad mensual: ¿hay registros de otros años?",
        x = "Mes", y = "Número de eventos") +
   theme_minimal()
-```
-Se ven dos picos grandes: uno en enero-febrero de 2025 y otro en julio de 2025 (coinciden con exámenes o entregas)
-filtramos los usuarios cuya última conexión fue antes de septiembre de 2024 para ver si hay alguien que sea de un curso anterior
 
-```{r}
 usuarios_antiguos <- logs %>%
   group_by(`Nombre completo del usuario`) %>%
   summarise(ultima_conexion = max(Hora),
@@ -641,9 +646,9 @@ usuarios_antiguos <- logs %>%
 knitr::kable(usuarios_antiguos,
              caption = "Usuarios que solo aparecen en fechas antiguas",
              booktabs = TRUE)
-```
 
-Como se ve en la Tabla, solo "U0124" y "U0093" tienen toda su actividad en julio de 2024, así que son de un curso anterior y no del 2024-2025.
+#la mayoría de registros son del curso 2024-2025, si hubiera datos de años anteriores, explicaría por qué hay usuarios con tan poca actividad, puede que sean alumnos de otros cursos
+```
 
 
 
