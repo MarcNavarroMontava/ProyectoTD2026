@@ -431,7 +431,27 @@ knitr::kable(out_usuarios,
              booktabs = TRUE)
 ```
 
+Como se observa en la Tabla \@ref(tab:outliers-usuarios), los usuarios con actividad extremadamente alta destacan con claridad sobre el resto. La Figura \@ref(fig:outliers-usuarios-plot) muestra la distribución completa con sus etiquetas, y  permite apreciar la asimetría.
 
+```{r outliers-usuarios-plot, fig.cap="Distribución de actividad por usuario con outliers marcados"}
+user_data_plot <- user_data %>%
+  mutate(es_outlier = if_else(eventos > lim_u, "Outlier Alto", "Normal"))
+
+ggplot(user_data_plot, aes(x = "", y = eventos, color = es_outlier)) +
+  geom_jitter(width = 0.2, alpha = 0.6) +
+  geom_hline(yintercept = lim_u, linetype = "dashed", color = "navy") +
+  ggrepel::geom_text_repel(
+    data = filter(user_data_plot, es_outlier == "Outlier Alto"),
+    aes(label = `Nombre completo del usuario`),
+    size = 3, max.overlaps = 10
+  ) +
+  scale_color_manual(values = c("Normal" = "hotpink", "Outlier Alto" = "brown")) +
+  labs(title = "Detección de Outliers por Usuario",
+       subtitle = paste("Límite superior IQR:", round(lim_u, 0), "eventos"),
+       y = "Total de Eventos", x = "", color = "Estado") +
+  theme_minimal()
+```
+Los usuarios con actividad extremadamente alta son muy probablemente el profesor o un administrador, lo que es coherente con el análisis de IPs faltantes realizado anteriormente: los mismos usuarios que ejecutan acciones de back-end sin IP son los que acumulan más eventos en total. Los usuarios con actividad muy baja podrían ser estudiantes que abandonaron el curso a mitad o que se matricularon tarde.
 
 
 # Preguntas
