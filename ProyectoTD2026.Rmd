@@ -400,19 +400,36 @@ Debido a que demostramos que los NAs en la columna `Dirección IP` no eran error
 
 Esto nos permite conservar el 100% de la información crítica sin que las funciones analíticas posteriores colapsen por culpa de los valores nulos.
 
-## Análisis de outliers...
-=======
-## Análisis de outliers
->>>>>>> ebcc369d0e87c057a02a9b9499c6785667ad3f0a
+# Análisis de outliers
 
-Para datos de logs (series temporales de eventos), los outliers más
-relevantes son:
-1. Usuarios con un volumen de actividad anormalmente alto o bajo.
-2. Horas del día con picos/caídas inesperadas.
-3. Días concretos con actividad atípica (posibles incidencias o entregas).
-4. Sesiones de usuario extremadamente largas (inactividad prolongada).
-usamos el método IQR (rango intercuartílico) para los casos 1, 2 y 3,que es robusto frente a distribuciones asimétricas como la de los logs.Para el caso 4 usamos percentiles altos (P95, P99).
+Para datos de logs (series temporales de eventos), los outliers más relevantes son: usuarios con un volumen de actividad anormalmente alto o bajo, horas del día con picos o caídas inesperadas, días concretos con actividad atípica (posibles incidencias o entregas), y sesiones de usuario extremadamente largas que podrían indicar inactividad prolongada. Utilizamos el método IQR (rango intercuartílico) para los tres primeros casos, ya que es robusto frente a distribuciones asimétricas como la de los logs. Para las sesiones, usamos percentiles altos (P95, P99).
 
+## 1. Outliers de actividad por usuario
+
+```{r outliers-usuarios}
+# Contamos el total de eventos por usuario
+user_data <- logs %>%
+  count(`Nombre completo del usuario`, name = "eventos")
+
+# Calculamos los límites IQR: cualquier valor por encima de Q3 + 1.5*IQR
+# o por debajo de Q1 - 1.5*IQR se considera estadísticamente atípico
+u_q1  <- quantile(user_data$eventos, 0.25)
+u_q3  <- quantile(user_data$eventos, 0.75)
+u_iqr <- u_q3 - u_q1
+lim_u     <- u_q3 + 1.5 * u_iqr       # Límite superior
+lim_u_inf <- max(0, u_q1 - 1.5 * u_iqr) # Límite inferior (mínimo 0)
+
+# Etiquetamos y filtramos los usuarios fuera de los límites
+out_usuarios <- user_data %>%
+  filter(eventos > lim_u | eventos < lim_u_inf) %>%
+  mutate(tipo = if_else(eventos > lim_u, "Actividad Muy Alta", "Actividad Muy Baja"))
+
+knitr::kable(out_usuarios,
+             caption = "Tabla 1: Usuarios detectados como outliers (método IQR)",
+             col.names = c("Nombre del Usuario", "Total Eventos", "Clasificación"),
+             format.args = list(big.mark = "."),
+             booktabs = TRUE)
+```
 
 
 
