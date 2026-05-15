@@ -357,7 +357,18 @@ print(head(clasificacion_estricta, 15))
 ```
 
 
-## Análisis de outliers...
+## Análisis de outliers
+
+Para datos de logs (series temporales de eventos), los outliers más
+relevantes son:
+1. Usuarios con un volumen de actividad anormalmente alto o bajo.
+2. Horas del día con picos/caídas inesperadas.
+3. Días concretos con actividad atípica (posibles incidencias o entregas).
+4. Sesiones de usuario extremadamente largas (inactividad prolongada).
+usamos el método IQR (rango intercuartílico) para los casos 1, 2 y 3,que es robusto frente a distribuciones asimétricas como la de los logs.Para el caso 4 usamos percentiles altos (P95, P99).
+
+
+
 
 ```{r}
 #contamos el total de eventos por usuario
