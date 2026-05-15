@@ -995,6 +995,8 @@ knitr::kable(usuarios_antiguos,
 
 ## De todas las acciones registradas, ¿cuál es la proporción real de eventos de interacción directa (Usuario != Usuario afectado) frente a eventos de lectura/navegación, y qué eventos específicos detonan estas interacciones? - Dorina
 
+La proporción de interacciones directas es fácil de calcular clasificando los eventos en dos categorías según la condición "Usuario != Usuario afectado". La tabla resultante es \@ref(tab:tabla-proporciones}. Solo alrededor del 14% de las interacciones son directas.
+
 #Tabla resumen
 
 ```{r tabla-proporciones}
@@ -1030,6 +1032,7 @@ ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
 La proporción de interacciones directas es fácil de calcular clasificando los eventos en dos categorías según la condición "Usuario != Usuario afectado". La tabla resultante es \@ref(tab:tabla-proporciones}. Solo alrededor del 14% de las interacciones son directas.
+
 
 #Tabla resumen
 
