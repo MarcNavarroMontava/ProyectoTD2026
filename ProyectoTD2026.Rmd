@@ -369,18 +369,10 @@ print(head(clasificacion_estricta, 15))
 ## Resolución de NAs para la columna `Dirección IP`
 
 
-## Análisis de outliers...
-=======
-## Análisis de outliers
->>>>>>> ebcc369d0e87c057a02a9b9499c6785667ad3f0a
+# Análisis de outliers
 
-Para datos de logs (series temporales de eventos), los outliers más
-relevantes son:
-1. Usuarios con un volumen de actividad anormalmente alto o bajo.
-2. Horas del día con picos/caídas inesperadas.
-3. Días concretos con actividad atípica (posibles incidencias o entregas).
-4. Sesiones de usuario extremadamente largas (inactividad prolongada).
-usamos el método IQR (rango intercuartílico) para los casos 1, 2 y 3,que es robusto frente a distribuciones asimétricas como la de los logs.Para el caso 4 usamos percentiles altos (P95, P99).
+Para datos de logs (series temporales de eventos), los outliers más relevantes son: usuarios con un volumen de actividad anormalmente alto o bajo, horas del día con picos o caídas inesperadas, días concretos con actividad atípica (posibles incidencias o entregas), y sesiones de usuario extremadamente largas que podrían indicar inactividad prolongada. Utilizamos el método IQR (rango intercuartílico) para los tres primeros casos, ya que es robusto frente a distribuciones asimétricas como la de los logs. Para las sesiones, usamos percentiles altos (P95, P99).
+
 
 
 
