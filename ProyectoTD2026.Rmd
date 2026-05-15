@@ -30,7 +30,17 @@ library(ggplot2)
 
 ```
 
+#Configuracion
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,      
+  message = FALSE,   
+  warning = FALSE,   
+  fig.width = 5,      
+  fig.height = 3.5,   
+  fig.align = 'center' )
+```
 
 # LEER LOS DATOS
 ```{r, echo = FALSE}
