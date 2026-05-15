@@ -825,6 +825,50 @@ ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
 
 Para responder esta pregunta utilizamos la columna `Dirección IP` como indicador del tipo de acceso: los registros que **sí tienen IP** corresponden a accesos reales desde un navegador web, mientras que los registros **sin IP** fueron ya identificados en la limpieza como procesos automáticos del back-end del sistema (mecanismo MAR). Por lo tanto, filtrar por IP nos permite separar la actividad humana real de los procesos internos del sistema.
 
+```{r accesos-web}
+logs_web <- logs %>%
+  filter(!is.na(`Dirección IP`))
+
+resumen_ip <- logs %>%
+  mutate(origen = if_else(is.na(`Dirección IP`), "Sin IP (back-end)", "Con IP (web)")) %>%
+  count(origen) %>%
+  mutate(porcentaje = round(n / sum(n) * 100, 1))
+
+knitr::kable(resumen_ip,
+             caption = "Distribución de registros con y sin dirección IP",
+             col.names = c("Origen", "Registros", "%"),
+             booktabs = TRUE)
+```
+Como se observa en la Tabla \@ref(tab:accesos-web), la gran mayoría de los registros provienen de accesos web reales. Los registros sin IP son una minoría y corresponden exclusivamente a acciones administrativas automatizadas, tal como se analizó en el apartado de IPs faltantes.
+
+```{r plot-origen, fig.cap="Proporción de accesos web vs. procesos back-end"}
+ggplot(resumen_ip, aes(x = "", y = porcentaje, fill = origen)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y") +
+  geom_text(aes(label = paste0(porcentaje, "%")),
+            position = position_stack(vjust = 0.5),
+            fontface = "bold", size = 5) +
+  scale_fill_manual(values = c("Con IP (web)" = "maroon", "Sin IP (back-end)" = "goldenrod2")) +
+  labs(title = "Accesos web frente a procesos automáticos del sistema",
+       fill = NULL) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+En la Figura \@ref(fig:plot-origen) se confirma visualmente que más del 90% de los registros tienen IP asignada, es decir, son accesos humanos desde navegador web.
+
+```{r componentes-web}
+componentes_web <- logs_web %>%
+  count(Componente, sort = TRUE) %>%
+  mutate(porcentaje = round(n / sum(n) * 100, 1))
+
+knitr::kable(head(componentes_web, 15),
+             caption = "Top 15 componentes con más accesos web",
+             col.names = c("Componente", "Registros", "%"),
+             booktabs = TRUE)
+```
+Como se observa en la Tabla \@ref(tab:componentes-web), el componente *Sistema* y *Tarea* concentran la mayor parte del tráfico web, mientras que otros como *Encuesta* o *Cuestionario* tienen una presencia más reducida.
+
+
 
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
