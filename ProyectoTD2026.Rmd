@@ -821,6 +821,11 @@ ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
   labs(title = "Mapa de Calor: Interacción Día vs Hora en Moodle", x = "Franja Horaria (0-23h)", y = "Día de la Semana", fill = "Registros")
 ```
 
+## ¿Con qué frecuencia acceden los usuarios a la plataforma desde la web? ¿Hay momentos típicos para los componentes como "Tarea", "Cuestionario", "Carpeta", "Encuesta"...? - Nav
+
+Para responder esta pregunta utilizamos la columna `Dirección IP` como indicador del tipo de acceso: los registros que **sí tienen IP** corresponden a accesos reales desde un navegador web, mientras que los registros **sin IP** fueron ya identificados en la limpieza como procesos automáticos del back-end del sistema (mecanismo MAR). Por lo tanto, filtrar por IP nos permite separar la actividad humana real de los procesos internos del sistema.
+
+
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
 ```{r secciones-por-usuario}
