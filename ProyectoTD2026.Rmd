@@ -215,6 +215,8 @@ Segundo, aparece un nuevo nombre de usuario distinto al que habíamos visto en `
 
 Es sumamente importante porque es posible que este filtrado nos permita obtener los usuarios que tienen permisos superiores en el moodle del aula virtual. Lo extraño es que este nuevo usuario `U0125` no aparece o tarda en aparecer hasta dentro de mucho tiempo, ya que están ordenados los registros de más recientes a más antiguos, en la tabla de `logs_afectados`, lo que quiere decir que las (supuestas) modificaciones `logs_na_ip`no fueron hechas hasta hace mucho más tiempo que en la tabla de `logs_afectados`
 
+## falta tabla explicativa o grafica
+
 ¿Qué eventos provocan esos NAs?
 
 ```{r tabla-eventos_NA}
@@ -261,7 +263,8 @@ eventos_con_ip <- logs %>% filter(!is.na(`Dirección IP`)) %>%
 comparativa_na <- bind_rows(head(eventos_sin_ip, 10), eventos_con_ip)
 ```
 
-
+Debido a que ya somos capaces de determinar que eventos son más probables que hayan sido realizados por roles de administración, podemos determinar un criterio para ser capaces de determinar los usuarios que imparten ese rol. 
+## falta un kable y una explicacion de lo que se esta viendo (mejor una gráfica)
 ```{r}
 eventos_admin <- c("Evento de calendario actualizado", 
                    "Calificación borrada", 
@@ -282,6 +285,8 @@ roles_administrativos <- logs %>%
 head(roles_administrativos)
 ```
 
+Los outliers serían aquellos con más probabilidades de ser de la parte de administración.
+Recordemos que este análisis es proveniente de la falta de datos en las IPs, explicada en el apartado anterior.
 
 ## Análisis de outliers...
 
