@@ -868,6 +868,21 @@ knitr::kable(head(componentes_web, 15),
 ```
 Como se observa en la Tabla \@ref(tab:componentes-web), el componente *Sistema* y *Tarea* concentran la mayor parte del tráfico web, mientras que otros como *Encuesta* o *Cuestionario* tienen una presencia más reducida.
 
+```{r plot-componentes, fig.cap="Top 10 componentes por accesos web", fig.width=8, fig.height=5}
+ggplot(head(componentes_web, 10),
+       aes(x = reorder(Componente, n), y = n, fill = n)) +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = n), hjust = -0.1, size = 3.5) +
+  coord_flip() +
+  scale_fill_gradient(low = "maroon", high = "goldenrod2") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)),
+                     labels = scales::comma) +
+  labs(title = "Componentes de Moodle con más accesos web",
+       x = NULL, y = "Número de accesos") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.major.y = element_blank())
+```
+En la Figura \@ref(fig:plot-componentes) se aprecia con claridad la jerarquía de uso: los componentes relacionados con la navegación general y las entregas acumulan la inmensa mayoría de los accesos web.
 
 
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
