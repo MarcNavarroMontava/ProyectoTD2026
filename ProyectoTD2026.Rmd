@@ -216,9 +216,17 @@ Primera, los datos faltantes se tratan de un MAR debido a que estan estrechament
 Segundo, aparece un nuevo nombre de usuario distinto al que habíamos visto en `logs_afectados` que es capaz generar registros (no NAs) en la columna de usuarios afectados.
 
 Es sumamente importante porque es posible que este filtrado nos permita obtener los usuarios que tienen permisos superiores en el moodle del aula virtual. Lo extraño es que este nuevo usuario `U0125` no aparece o tarda en aparecer hasta dentro de mucho tiempo, ya que están ordenados los registros de más recientes a más antiguos, en la tabla de `logs_afectados`, lo que quiere decir que las (supuestas) modificaciones `logs_na_ip`no fueron hechas hasta hace mucho más tiempo que en la tabla de `logs_afectados`
+```{r tabla-usuarios-na}
 
-## falta tabla explicativa o grafica
+usuarios_na_ip <- logs_na_ip %>%
+  count(`Nombre completo del usuario`, sort = TRUE) %>%
+  head(5)
 
+knitr::kable(usuarios_na_ip, 
+             caption = "Top usuarios que generan registros sin Dirección IP", 
+             booktabs = TRUE)
+```
+Como se observa en la Tabla \@ref(tab:tabla-usuarios-na), emerge con fuerza un usuario (U0125) que concentra la inmensa mayoría de estos registros fantasma, lo que nos da la primera pista de su rol administrativo en la sombra.
 ## Detección de roles administrativos mediante la arquitectura de datos faltantes (IP)
 ¿Qué eventos provocan esos NAs?
 
@@ -257,17 +265,31 @@ Tras analizar los datos, se detectaron 2.857 registros sin Dirección IP. En lug
 
 Para comprobar empíricamente que se trata de un MAR, demostraremos que el hecho de que falte una dirección IP dependerá del evento que se esté tratando.
 
-```{r}
-eventos_sin_ip <- logs_na_ip %>% count(`Nombre evento`, sort = TRUE, name = "Cantidad de Usuarios sin IP") %>% mutate(Tipo = "Sin IP")
+```{r figura-comparativa-ip, fig.cap="Comparativa de eventos con y sin registro de IP"}
+eventos_sin_ip <- logs_na_ip %>% 
+  count(`Nombre evento`, sort = TRUE, name = "Frecuencia") %>% 
+  mutate(Tipo = "Sin IP (Backend)")
 
-eventos_con_ip <- logs %>% filter(!is.na(`Dirección IP`)) %>% 
-  count(`Nombre evento`, sort = TRUE, name = "Cantidad de Usuarios con IP") %>% head(10) %>% mutate(Tipo = "Con IP")
+eventos_con_ip <- logs %>% 
+  filter(!is.na(`Dirección IP`)) %>% 
+  count(`Nombre evento`, sort = TRUE, name = "Frecuencia") %>% 
+  head(10) %>% 
+  mutate(Tipo = "Con IP (Humano)")
 
 comparativa_na <- bind_rows(head(eventos_sin_ip, 10), eventos_con_ip)
+
+ggplot(comparativa_na, aes(x = reorder(`Nombre evento`, Frecuencia), y = Frecuencia, fill = Tipo)) +
+  geom_col(position = "dodge", color = "white") +
+  coord_flip() +
+  scale_fill_manual(values = c("Con IP (Humano)" = "steelblue", "Sin IP (Backend)" = "darkred")) +
+  labs(x = "Nombre del evento", 
+       y = "Cantidad de registros",
+       title = "Naturaleza de los eventos: Humanos vs. Sistema") +
+  theme_minimal()
 ```
+En la Figura \@ref(fig:figura-comparativa-ip) observamos claramente la dicotomía del sistema: los eventos de navegación y visualización siempre registran la IP del usuario, mientras que los eventos de modificación profunda de la asignatura carecen de ella.
 
 Debido a que ya somos capaces de determinar que eventos son más probables que hayan sido realizados por roles de administración, podemos determinar un criterio para ser capaces de determinar los usuarios que imparten ese rol. 
-## falta un kable y una explicacion de lo que se esta viendo (mejor una gráfica)
 
 ## ¿Existe una polarización en el uso de la plataforma? ¿Qué usuarios concretos concentran la mayor cantidad de eventos críticos (como entregas o calificaciones) frente a la mayoría pasiva?
 
@@ -364,10 +386,19 @@ print(head(clasificacion_estricta, 15))
 ```
 
 
-<<<<<<< HEAD
 
 ## Resolución de NAs para la columna `Dirección IP`
 
+```{r}
+logs <- logs %>% #logs_limpios
+  mutate(`Dirección IP` = replace_na(`Dirección IP`, "Proceso Interno (Backend)"))
+
+sum(is.na(logs$`Dirección IP`)) 
+```
+
+Debido a que demostramos que los NAs en la columna `Dirección IP` no eran errores de conexión (MCAR), sino datos MAR condicionados a acciones de mantenimiento y calificación del sistema. Borrar esas filas habría introducido un sesgo masivo. Por tanto aplicamos una imputación constante, reemplazando los valores nulos por la etiqueta 'Proceso Interno (Backend)'. 
+
+Esto nos permite conservar el 100% de la información crítica sin que las funciones analíticas posteriores colapsen por culpa de los valores nulos.
 
 ## Análisis de outliers...
 =======
