@@ -2,7 +2,9 @@
 title: "Proyecto TD 2026 - Fase 1"
 author: "Grupo B"
 date: "6 de abril de 2026"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 
@@ -86,6 +88,9 @@ ggplot(datos_figura, aes(x = reorder(Componente, n), y = n)) +
 
 En la Figura \@ref(fig:figura-logs) Observamos la frecuencia de uso de cada componente.
 
+#/newpage
+
+
 # TABLA
 
 Seleccionamos los 10 primeros registros (los más recientes)
@@ -126,6 +131,7 @@ Para convertirlo asumimos que se encuentra estructurado como ´dd/mm/aa´, ´hh:
 ```{r echo=FALSE}
 logs <- logs %>% mutate(Hora= dmy_hms(Hora))
 class(logs$Hora) # Ahora ya lo podemos tratar como un dato tipo fecha
+head(logs)
 ```
 
 Trataremos los datos `Nombre evento`, `Contexto del evento` y  `Componente` como factores.
@@ -135,6 +141,7 @@ logs <- logs %>% mutate(across(c(`Nombre evento`, `Contexto del evento`,Componen
 class(logs$`Contexto del evento`)
 class(logs$`Nombre evento`)
 class(logs$Componente)
+head(logs)
 ```
 
 
@@ -153,7 +160,7 @@ total_na/total_registros*100 #Hay un 63% de NAs de la columna de Usuarios afecta
 Esta gran cantidad se nos hace a entender tras la información documentada:
 "Usuario afectado: usuario sobre el que recae la acción (cuando aplica; si no se ha codificado como NA)."
 
-Esto implica que un 63% de usuarios no fueron afectados. ¿Pero exactamente de que acción no fueron afectados?
+Esto implica que un 63% de registros de usuarios no fueron afectados. ¿Pero exactamente de que acción no fueron afectados?
 
 Para esta pregunta podemos responderla a través de aquellos registros en donde la columna de Usuario afectado no es un NA, es decir, en donde sí fueron afectados.
 
@@ -178,11 +185,13 @@ Sin embargo observamos que no es así completamente. Es decir que ocurren regist
 
 De hecho si los contamos son un poco menos de la mitad de todos los registros, es decir que son bastantes.
 
-(Se delega para la parte de analisis)
 
-Resolución de NAs para la columna `Usuario afectado`: Hemos identificado un 63% de NAs. El análisis revela que estos no son errores de registro, sino acciones pasivas. Para el análisis general, conservaremos estos datos. Sin embargo, para estudiar las interacciones, se ha creado un subconjunto (logs_afectados) filtrando los NAs.
+## Resolución de NAs para la columna `Usuario afectado`: 
+
+Hemos identificado un 63% de NAs. El análisis revela que estos no son errores de registro, sino acciones pasivas. Para el análisis general, conservaremos estos datos. Sin embargo, para estudiar las interacciones, se ha creado un subconjunto (logs_afectados) filtrando los NAs.
 
 
+## Análisis de NAs Dirección IP
 
 Por otra parte, si es cierto que hemos conseguido hacer un análisis exahustivo sobre los NAs de la columna de `Usuarios afectados` pero, no hemos comprobado que en el resto de variables no contengan NAs.
 
@@ -207,7 +216,18 @@ Primera, los datos faltantes se tratan de un MAR debido a que estan estrechament
 Segundo, aparece un nuevo nombre de usuario distinto al que habíamos visto en `logs_afectados` que es capaz generar registros (no NAs) en la columna de usuarios afectados.
 
 Es sumamente importante porque es posible que este filtrado nos permita obtener los usuarios que tienen permisos superiores en el moodle del aula virtual. Lo extraño es que este nuevo usuario `U0125` no aparece o tarda en aparecer hasta dentro de mucho tiempo, ya que están ordenados los registros de más recientes a más antiguos, en la tabla de `logs_afectados`, lo que quiere decir que las (supuestas) modificaciones `logs_na_ip`no fueron hechas hasta hace mucho más tiempo que en la tabla de `logs_afectados`
+```{r tabla-usuarios-na}
 
+usuarios_na_ip <- logs_na_ip %>%
+  count(`Nombre completo del usuario`, sort = TRUE) %>%
+  head(5)
+
+knitr::kable(usuarios_na_ip, 
+             caption = "Top usuarios que generan registros sin Dirección IP", 
+             booktabs = TRUE)
+```
+Como se observa en la Tabla \@ref(tab:tabla-usuarios-na), emerge con fuerza un usuario (U0125) que concentra la inmensa mayoría de estos registros fantasma, lo que nos da la primera pista de su rol administrativo en la sombra.
+## Detección de roles administrativos mediante la arquitectura de datos faltantes (IP)
 ¿Qué eventos provocan esos NAs?
 
 ```{r tabla-eventos_NA}
@@ -245,39 +265,193 @@ Tras analizar los datos, se detectaron 2.857 registros sin Dirección IP. En lug
 
 Para comprobar empíricamente que se trata de un MAR, demostraremos que el hecho de que falte una dirección IP dependerá del evento que se esté tratando.
 
-```{r}
-eventos_sin_ip <- logs_na_ip %>% count(`Nombre evento`, sort = TRUE, name = "Cantidad de Usuarios sin IP") %>% mutate(Tipo = "Sin IP")
+```{r figura-comparativa-ip, fig.cap="Comparativa de eventos con y sin registro de IP"}
+eventos_sin_ip <- logs_na_ip %>% 
+  count(`Nombre evento`, sort = TRUE, name = "Frecuencia") %>% 
+  mutate(Tipo = "Sin IP (Backend)")
 
-eventos_con_ip <- logs %>% filter(!is.na(`Dirección IP`)) %>% 
-  count(`Nombre evento`, sort = TRUE, name = "Cantidad de Usuarios con IP") %>% head(10) %>% mutate(Tipo = "Con IP")
+eventos_con_ip <- logs %>% 
+  filter(!is.na(`Dirección IP`)) %>% 
+  count(`Nombre evento`, sort = TRUE, name = "Frecuencia") %>% 
+  head(10) %>% 
+  mutate(Tipo = "Con IP (Humano)")
 
 comparativa_na <- bind_rows(head(eventos_sin_ip, 10), eventos_con_ip)
-```
 
-## Análisis de outliers...
+ggplot(comparativa_na, aes(x = reorder(`Nombre evento`, Frecuencia), y = Frecuencia, fill = Tipo)) +
+  geom_col(position = "dodge", color = "white") +
+  coord_flip() +
+  scale_fill_manual(values = c("Con IP (Humano)" = "steelblue", "Sin IP (Backend)" = "darkred")) +
+  labs(x = "Nombre del evento", 
+       y = "Cantidad de registros",
+       title = "Naturaleza de los eventos: Humanos vs. Sistema") +
+  theme_minimal()
+```
+En la Figura \@ref(fig:figura-comparativa-ip) observamos claramente la dicotomía del sistema: los eventos de navegación y visualización siempre registran la IP del usuario, mientras que los eventos de modificación profunda de la asignatura carecen de ella.
+
+Debido a que ya somos capaces de determinar que eventos son más probables que hayan sido realizados por roles de administración, podemos determinar un criterio para ser capaces de determinar los usuarios que imparten ese rol. 
+
+## ¿Existe una polarización en el uso de la plataforma? ¿Qué usuarios concretos concentran la mayor cantidad de eventos críticos (como entregas o calificaciones) frente a la mayoría pasiva?
+
 
 ```{r}
-#contamos el total de eventos por usuario
-actividad_usuario <- logs %>%
-  count(`Nombre completo del usuario`, name = "total_eventos") %>%
-  arrange(desc(total_eventos))
+eventos_admin <- c("Evento de calendario actualizado", 
+                   "Calificación borrada", 
+                   "Usuario calificado", 
+                   "Rol asignado", 
+                   "Usuario matriculado en el curso",
+                   "Módulo de curso eliminado")
 
-#calculamos los límites IQR
-q1 <- quantile(actividad_usuario$total_eventos, 0.25)
-q3 <- quantile(actividad_usuario$total_eventos, 0.75)
-iqr <- q3 - q1
-
-limite_inf <- q1 - 1.5 * iqr  # Umbral inferior
-limite_sup <- q3 + 1.5 * iqr  # Umbral superior
-
-#etiquetamos cada usuario
-actividad_usuario <- actividad_usuario %>%
-  mutate(tipo = case_when(
-    total_eventos > limite_sup ~ "Outlier alto (posible profesor/admin)",
-    total_eventos < max(limite_inf, 0) ~ "Outlier bajo (muy poca actividad)",
-    TRUE ~ "Normal"
+roles_administrativos <- logs %>%
+  filter(`Nombre evento` %in% eventos_admin) %>%
+  count(`Nombre completo del usuario`, name = "Total_Acciones_Criticas") %>%
+  arrange(desc(Total_Acciones_Criticas)) %>%
+  mutate(Rol_Inferido = case_when(
+    Total_Acciones_Criticas > 10 ~ "Administrador / Profesor",
+    TRUE ~ "Soporte / Eventual"
   ))
+
+head(roles_administrativos)
 ```
+
+Los outliers serían aquellos con más probabilidades de ser de la parte de administración.
+Recordemos que este análisis es proveniente de la falta de datos en las IPs, explicada en el apartado anterior.
+
+
+Por lo tanto procederemos marcando los nombres de los eventos los cuales según la frecuencia de acciones críticas, podemos determinar como `eventos_criticos`.
+```{r}
+eventos_criticos <- logs %>%
+  filter(str_detect(`Nombre evento`, "(?i)calific|enví|entreg|asign|borrad"))
+```
+
+Una vez determinamos estos eventos, procederemos con el cálculo para ser capaces de visualizar lo que hemos logrado. De forma que representaremos la polarización que existe entre las acciones críticas que tomo cada usuario y que porcentaje real representa respecto al total. 
+
+Es decir de aquellos que hicieron un gran uso de tareas administrativas(las cuales hemos determinado) cuanto representaron respecto al totaly de aquellos que no. 
+
+```{r}
+polarizacion <- eventos_criticos %>%
+  count(`Nombre completo del usuario`, name = "Volumen_Critico") %>%
+  arrange(desc(Volumen_Critico)) %>%
+  mutate(
+    Ranking = row_number(),
+    Porcentaje_Acumulado = cumsum(Volumen_Critico) / sum(Volumen_Critico) * 100,
+    Total_Usuarios = n()
+  )
+
+
+```
+
+```{r}
+ggplot(polarizacion, aes(x = Ranking, y = Porcentaje_Acumulado)) +
+  geom_line(color = "darkred", linewidth = 1.2) +
+  geom_area(fill = "darkred", alpha = 0.2) +
+  geom_hline(yintercept = 80, linetype = "dashed", color = "black") +
+  labs(
+    title = "Polarización en Moodle: Concentración de Eventos Críticos",
+    subtitle = "Una minoría de usuarios ejecuta la inmensa mayoría de acciones de impacto",
+    x = "Usuarios ordenados por volumen de actividad crítica",
+    y = "% Acumulado del total de eventos críticos"
+  ) +
+  theme_minimal()
+```
+
+Sin embargo, detectamos un sesgo en nuestra gráfica, ya que a pesar de haber conseguido polarizar los usuarios que han hecho la mayor parte de registros que consideramos eventos administrativos/críticos, no podemos determinar por completo que no sean alumnos los cuales han revisado sus calificaciones una y otra vez. O han estado varias veces revisando horarios de plazos de entrega, es decir que nuestro criterio es demasiado débil para una conclusión robusta.
+
+Por lo que decidimos aplicar un criterio aún más robusto y no basado en nuestros datos, sino en las restricciones de cualquier Moodle en donde los permisos de un usuario normal son completamente distintos al de un rol de administrador, haciendo de esta forma un clustering basado en las normas de permisos por defecto de un Moodle cualquiera. (Usuario calificado, borrado... Actividades de profesor, Enviado, entregado,... Acciones de alumno...)
+
+```{r}
+clasificacion_estricta <- logs %>%
+  mutate(Tipo_Accion = case_when(
+    str_detect(`Nombre evento`, "(?i)Usuario calificado|borrad|asignad|eliminad") ~ "Acciones_Profesor",
+    str_detect(`Nombre evento`, "(?i)enviad|entregad|intento") ~ "Acciones_Alumno",
+    TRUE ~ "Otro"
+  )) %>%
+  filter(Tipo_Accion != "Otro") %>%
+  
+  count(`Nombre completo del usuario`, Tipo_Accion) %>%
+  
+  pivot_wider(names_from = Tipo_Accion, values_from = n, values_fill = list(n = 0)) %>%
+  
+  mutate(
+    Veredicto = case_when(
+      Acciones_Profesor > 0 & Acciones_Alumno == 0 ~ "100% Profesor/Admin",
+      Acciones_Alumno > 0 & Acciones_Profesor == 0 ~ "100% Alumno (quizás muy activo)",
+      Acciones_Profesor > 0 & Acciones_Alumno > 0 ~ "Rol Híbrido (Becario o Profe probando el curso)",
+      TRUE ~ "Indeterminado"
+    )
+  ) %>%
+  arrange(desc(Acciones_Profesor))
+
+print(head(clasificacion_estricta, 15))
+```
+
+
+
+## Resolución de NAs para la columna `Dirección IP`
+
+```{r}
+logs <- logs %>% #logs_limpios
+  mutate(`Dirección IP` = replace_na(`Dirección IP`, "Proceso Interno (Backend)"))
+
+sum(is.na(logs$`Dirección IP`)) 
+```
+
+Debido a que demostramos que los NAs en la columna `Dirección IP` no eran errores de conexión (MCAR), sino datos MAR condicionados a acciones de mantenimiento y calificación del sistema. Borrar esas filas habría introducido un sesgo masivo. Por tanto aplicamos una imputación constante, reemplazando los valores nulos por la etiqueta 'Proceso Interno (Backend)'. 
+
+Esto nos permite conservar el 100% de la información crítica sin que las funciones analíticas posteriores colapsen por culpa de los valores nulos.
+
+# Análisis de outliers
+
+Para datos de logs (series temporales de eventos), los outliers más relevantes son: usuarios con un volumen de actividad anormalmente alto o bajo, horas del día con picos o caídas inesperadas, días concretos con actividad atípica (posibles incidencias o entregas), y sesiones de usuario extremadamente largas que podrían indicar inactividad prolongada. Utilizamos el método IQR (rango intercuartílico) para los tres primeros casos, ya que es robusto frente a distribuciones asimétricas como la de los logs. Para las sesiones, usamos percentiles altos (P95, P99).
+
+## 1. Outliers de actividad por usuario
+
+```{r outliers-usuarios}
+# Contamos el total de eventos por usuario
+user_data <- logs %>%
+  count(`Nombre completo del usuario`, name = "eventos")
+
+# Calculamos los límites IQR: cualquier valor por encima de Q3 + 1.5*IQR
+# o por debajo de Q1 - 1.5*IQR se considera estadísticamente atípico
+u_q1  <- quantile(user_data$eventos, 0.25)
+u_q3  <- quantile(user_data$eventos, 0.75)
+u_iqr <- u_q3 - u_q1
+lim_u     <- u_q3 + 1.5 * u_iqr       # Límite superior
+lim_u_inf <- max(0, u_q1 - 1.5 * u_iqr) # Límite inferior (mínimo 0)
+
+# Etiquetamos y filtramos los usuarios fuera de los límites
+out_usuarios <- user_data %>%
+  filter(eventos > lim_u | eventos < lim_u_inf) %>%
+  mutate(tipo = if_else(eventos > lim_u, "Actividad Muy Alta", "Actividad Muy Baja"))
+
+knitr::kable(out_usuarios,
+             caption = "Tabla 1: Usuarios detectados como outliers (método IQR)",
+             col.names = c("Nombre del Usuario", "Total Eventos", "Clasificación"),
+             format.args = list(big.mark = "."),
+             booktabs = TRUE)
+```
+
+Como se observa en la Tabla \@ref(tab:outliers-usuarios), los usuarios con actividad extremadamente alta destacan con claridad sobre el resto. La Figura \@ref(fig:outliers-usuarios-plot) muestra la distribución completa con sus etiquetas, y  permite apreciar la asimetría.
+
+```{r outliers-usuarios-plot, fig.cap="Distribución de actividad por usuario con outliers marcados"}
+user_data_plot <- user_data %>%
+  mutate(es_outlier = if_else(eventos > lim_u, "Outlier Alto", "Normal"))
+
+ggplot(user_data_plot, aes(x = "", y = eventos, color = es_outlier)) +
+  geom_jitter(width = 0.2, alpha = 0.6) +
+  geom_hline(yintercept = lim_u, linetype = "dashed", color = "navy") +
+  ggrepel::geom_text_repel(
+    data = filter(user_data_plot, es_outlier == "Outlier Alto"),
+    aes(label = `Nombre completo del usuario`),
+    size = 3, max.overlaps = 10
+  ) +
+  scale_color_manual(values = c("Normal" = "hotpink", "Outlier Alto" = "brown")) +
+  labs(title = "Detección de Outliers por Usuario",
+       subtitle = paste("Límite superior IQR:", round(lim_u, 0), "eventos"),
+       y = "Total de Eventos", x = "", color = "Estado") +
+  theme_minimal()
+```
+Los usuarios con actividad extremadamente alta son muy probablemente el profesor o un administrador, lo que es coherente con el análisis de IPs faltantes realizado anteriormente: los mismos usuarios que ejecutan acciones de back-end sin IP son los que acumulan más eventos en total. Los usuarios con actividad muy baja podrían ser estudiantes que abandonaron el curso a mitad o que se matricularon tarde.
 
 
 # Preguntas
@@ -437,7 +611,7 @@ ggplot(actividad_semanal, aes(x = Dia_Semana, y = Total_Registros)) +
 ```{r}
 interaccion_horaria <- logs %>%
   mutate(Dia = format(Hora, "%A"), Hora_Num = hour(Hora)) %>%
-  mutate(Dia = factor(Dia, levels = c("lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"))) %>%
+  mutate(Dia = factor(Dia, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   group_by(Dia, Hora_Num) %>%
   summarise(Total = n(), .groups = 'drop')
 ```
@@ -446,10 +620,11 @@ interaccion_horaria <- logs %>%
 ```{r}
 ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
   geom_tile(color = "white") + 
-  scale_fill_gradient(low = "white", high = "red") +
+  scale_fill_gradient(low = "orange", high = "blue") +
   scale_x_continuous(breaks = 0:23) +
   labs(title = "Mapa de Calor: Interacción Día vs Hora en Moodle", x = "Franja Horaria (0-23h)", y = "Día de la Semana", fill = "Registros")
 ```
+
 
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
