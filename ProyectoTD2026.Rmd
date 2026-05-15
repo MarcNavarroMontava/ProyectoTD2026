@@ -1031,8 +1031,7 @@ ggplot(porcentaje_interacc_directa, aes(x = "", y = porcentaje, fill = tipo)) +
 
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
-La proporción de interacciones directas es fácil de calcular clasificando los eventos en dos categorías según la condición "Usuario != Usuario afectado". La tabla resultante es \@ref(tab:tabla-proporciones}. Solo alrededor del 14% de las interacciones son directas.
-
+Según el trabajo de Lucía \@ref(tab:secciones-por-usuario) asumiendo los roles de los usuarios, se puede determinar que hay 19 eventos que generan interacciones directas. En el gráfico de barras \@ref(fig:grafico-eventos-y-roles) podemos ver cuántos de cada tipo de evento ha ocurrido y qué porcentaje de estos fue realizado por un posible profesor. La mayoría de estos es "Usuario calificado", que es una acción que solo puede ser realizada por un profesor. Según los roles asumidos, el 97% de esto fue realizado por un profesor. Con este gráfico podemos observar la precisión de nuestras suposiciones.
 
 #Tabla resumen
 
