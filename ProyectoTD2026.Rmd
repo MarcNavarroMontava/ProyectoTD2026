@@ -1026,6 +1026,18 @@ eventos_interacc_directa %>%
   theme_minimal()
 ```
 
+## Conclusiones
+
+
+#Silvia
+Con relación a la hora pico del dá donde hay más registros en la plataforma podemos confirmar que se obtiene a las 9:00 hora de la mañana siendo esta una hora significativa ya que es la hora de inicio de clases. Además podemos tener en cuenta que el segundo pico más alto es a las 11:00 horas siendo esta tmabién significativa ya que concide con el inicio de la segunda clase en el horario. 
+Por otra parte viendo los resultados generales que el gráfico nos proporciona observamos como a lo largo de la tarde el número de registros es significativamente menor respecto al del horario de la mañana. Por último, también se observa que a lo largo de la norche y la madrugada tambié se generan registros, siendo el pico más bajo a las 4:00 horas de la madrugada.
+
+El dia de la semana con más registros podemos comprobar que son el miércoles y el viernes, siendo estos junto a los lunes, martes y jueves los días de la semana que más registros se presentan. Esto puede deberse a que durante la semana lectiva es más común acceder a la plataforma frente al fin de semana, sábados y domingos, donde el número de registros decrece con casi 15000 registros aproximadamente, es decir, un tercio de la gente que se conecta durante la semana. 
+Respondiendo a la segunda pregunta junto con, que dia de la semana contiene más registros, no podemos responderla en base a las tareas establecidas pero podemos suponer que durante los primeros cinco dias de la semana es más probable que coincida con alguna fecha significativa como una entrega o un examen.
+
+En relación a la pregunta de que si existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo, podemos comprobar por el Heatcamp creado que sí hau una relación, ademñas esta coincide con las dos preguntas anteriores, siendo el miércoles a las 9:00 horas revela un uso intensivo, esto nos confirma que el estudio realizado en las tres preguntas es bastante bueno, de hecho podemos observar todos los patrones de interacción en el gráfico, aunque sean menores al dia afirmado antes.
+
 
 
 
