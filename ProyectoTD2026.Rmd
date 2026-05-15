@@ -2,7 +2,9 @@
 title: "Proyecto TD 2026 - Fase 1"
 author: "Grupo B"
 date: "6 de abril de 2026"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 
@@ -86,6 +88,9 @@ ggplot(datos_figura, aes(x = reorder(Componente, n), y = n)) +
 
 En la Figura \@ref(fig:figura-logs) Observamos la frecuencia de uso de cada componente.
 
+#/newpage
+
+
 # TABLA
 
 Seleccionamos los 10 primeros registros (los más recientes)
@@ -153,7 +158,7 @@ total_na/total_registros*100 #Hay un 63% de NAs de la columna de Usuarios afecta
 Esta gran cantidad se nos hace a entender tras la información documentada:
 "Usuario afectado: usuario sobre el que recae la acción (cuando aplica; si no se ha codificado como NA)."
 
-Esto implica que un 63% de usuarios no fueron afectados. ¿Pero exactamente de que acción no fueron afectados?
+Esto implica que un 63% de registros de usuarios no fueron afectados. ¿Pero exactamente de que acción no fueron afectados?
 
 Para esta pregunta podemos responderla a través de aquellos registros en donde la columna de Usuario afectado no es un NA, es decir, en donde sí fueron afectados.
 
@@ -178,11 +183,13 @@ Sin embargo observamos que no es así completamente. Es decir que ocurren regist
 
 De hecho si los contamos son un poco menos de la mitad de todos los registros, es decir que son bastantes.
 
-(Se delega para la parte de analisis)
 
-Resolución de NAs para la columna `Usuario afectado`: Hemos identificado un 63% de NAs. El análisis revela que estos no son errores de registro, sino acciones pasivas. Para el análisis general, conservaremos estos datos. Sin embargo, para estudiar las interacciones, se ha creado un subconjunto (logs_afectados) filtrando los NAs.
+## Resolución de NAs para la columna `Usuario afectado`: 
+
+Hemos identificado un 63% de NAs. El análisis revela que estos no son errores de registro, sino acciones pasivas. Para el análisis general, conservaremos estos datos. Sin embargo, para estudiar las interacciones, se ha creado un subconjunto (logs_afectados) filtrando los NAs.
 
 
+## Detección de roles administrativos mediante la arquitectura de datos faltantes (IP)
 
 Por otra parte, si es cierto que hemos conseguido hacer un análisis exahustivo sobre los NAs de la columna de `Usuarios afectados` pero, no hemos comprobado que en el resto de variables no contengan NAs.
 
@@ -253,6 +260,28 @@ eventos_con_ip <- logs %>% filter(!is.na(`Dirección IP`)) %>%
 
 comparativa_na <- bind_rows(head(eventos_sin_ip, 10), eventos_con_ip)
 ```
+
+
+```{r}
+eventos_admin <- c("Evento de calendario actualizado", 
+                   "Calificación borrada", 
+                   "Usuario calificado", 
+                   "Rol asignado", 
+                   "Usuario matriculado en el curso",
+                   "Módulo de curso eliminado")
+
+roles_administrativos <- logs %>%
+  filter(`Nombre evento` %in% eventos_admin) %>%
+  count(`Nombre completo del usuario`, name = "Total_Acciones_Criticas") %>%
+  arrange(desc(Total_Acciones_Criticas)) %>%
+  mutate(Rol_Inferido = case_when(
+    Total_Acciones_Criticas > 10 ~ "Administrador / Profesor",
+    TRUE ~ "Soporte / Eventual"
+  ))
+
+head(roles_administrativos)
+```
+
 
 ## Análisis de outliers...
 
@@ -431,7 +460,7 @@ interaccion_horaria <- logs %>%
 ```
 #Visualización en un mapa de calor (Heatmap)
 
-```{r echo=FALSE}
+```{r}
 ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
   geom_tile(color = "white") + 
   scale_fill_gradient(low = "orange", high = "blue") +
