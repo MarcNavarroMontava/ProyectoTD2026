@@ -834,7 +834,7 @@ Vamos a realizar una tabla para poder visualizar los datos que vamos a usar desp
 ```{r}
 #Tabla 
 knitr::kable(interaccion_horaria,
-             caption = "Registro de actividad detallada: Lunes", booktabs = TRUE)
+             caption = "Registro de actividad detallada", booktabs = TRUE)
 
 ```
 
