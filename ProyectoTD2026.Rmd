@@ -316,6 +316,8 @@ actividad_usuario <- actividad_usuario %>%
 
 ## ¿Cuales han sido las tareas más realizadas por los estudiantes?¿Por qué? - Marc
 
+Esta pregunta es interesante porque permite identificar que actividades tienen un mayor impacto dentro de la plataforma. Analizar las tareas mas utilizadas ayuda a evaluar que herramientas docentes resultan más efectivas para el seguimiento de la asignatura. Los datos muestran que las tareas mas frecuentes son las practicas de laboratorio y actividades relacionadas con Datacamp, esto indica que la mayoria de estudiantes participaron de forma bastante constante en las actividades obligatorias de la asignatura. Tambien destaca que las diferencias entre tareas son pequeñas, lo que sugiere que no hubo una caida fuerte de participacion a lo largo del curso.
+
 ```{r}
 
 tareas_mas_realizadas <- logs %>%
@@ -336,6 +338,7 @@ knitr::kable(tareas_mas_realizadas,
 
 ## ¿Cuantos estudiantes aplican el control de asistencia online, tiene alguna relación con las tareas más realizadas? - Marc
 
+Esta pregunta resulta interesante porque permite analizar el grado de implicación de los estudiantes con las herramientas de seguimiento academico. Relacionando estos resultados con las tareas mas frecuentes, se observa que el numero de estudiantes que usan el control de asistencia es muy parecido al numero de usuarios que participan en las practicas y entregas principales, que rondaba entre 70 y 75 usuarios. Esto sugiere que los estudiantes mas activos en la plataforma tambien suelen participar en el seguimiento de asistencia, mostrando un uso constante de la plataforma durante el curso.
 
 ```{r}
 
@@ -390,8 +393,12 @@ ggplot(resumen_asistencia %>% filter(Categoria != "Total usuarios en el sistema"
 
 ## ¿Cuál es la hora del día en la que los estudiantes están más activos en la plataforma? - Silvia
 
+Para responder esta pregunta podemos tener diversas variables a evaluar como las horas a lo largo de todo el dia y los registros que hay por hora. Para esto cargamos los datos de la columna 'Horas' que hemos cargado previamente en el 'logs'. Usamos la libreria lubridate para ayudarnos con la resolución del problema.
+Por intuición podemos decir que es muy probable que la hora del dia donde hay más registros tenga relación con el horario de clases, el decir nos podemos situar en un intervalo entre las 9 y las 14 horas, además para ser un poco más específicos podiamos considerar el hecho que si hay semana de prácticas en mucho más probable que el número de registros aumente, puesto que el número de alumnos en la clase incrementa.
 
 #Primero vamos a agrupar por hora para saber el pico donde hay más actividad
+
+Para hacer esto hemos creado una función con el nombre $actividad_por_hora$ que toma la lista de registros, extrae la hora de cada uno, cuenta cuantas veces aparece cada uno y hace una tabla donde ordena las horas siendo la primera, 'hora pico',  con la mayor actividad de registros hasta la última con menor acrividad de registros.
 
 ```{r}
 actividad_por_hora <- logs %>% mutate(Solo_Hora = hour(Hora)) %>%
@@ -400,12 +407,18 @@ actividad_por_hora <- logs %>% mutate(Solo_Hora = hour(Hora)) %>%
   arrange(desc(Total_Registros))
 ```
 #Ahora extraemos la hora más activa
+
+Extraemos de la tabla $actividad_por_hora$ la información específica que necesitamos para crear posteriormente la gráfica donde se visualizarán los resultados obtenidos. Ya que en el paso anterior ordenamos las horas por número de registros de forma descendente, la primera fila de esta tabla corresponderá a la 'hora pico'.
+La primera variable $hora_pico$ busca la hora que tuvo más actividad, como hemos explicado antes tomamos solo el primer valor de la tabla anterior, por eso ponemos el índice [1]. La segunda varaible $max_logs$ calcula el número de máximo de registros.
+
 ```{r}
 hora_pico <- actividad_por_hora$Solo_Hora[1]
 max_logs <- actividad_por_hora$Total_Registros[1]
 ```
 
 #Visualización 
+
+Para completar este apartado vamos a visualizar un una gráfica para observar los resultados, para esto hemos usado un tipo de gráfica que visualiza satisfactoriamente y diferencia la hora pico de las horas con menos registros. Usamos un gráfico de areas donde podemos observar que la hora pico con el número de registros más alto corresponde a las 9:00 horas.
 
 ```{r}
 ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) + 
@@ -417,27 +430,26 @@ ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) +
 ```
 
 ## ¿Qué día de la semana hay más actividad?¿Coincide con alguna fecha significativa? - Silvia
+  
+Esta pregunta está muy relacionada con la pregunta anterior ya que queremos saber qué dia de la semana hay más actividad, y en la preguntaa anterior queriamos saber que horqa del dia hay más actividad, por lo que el procedimiento va a ser bastqante parecido.
 
 #Primero creamos un función que nos permita extraer parte de la fecha que queramos comprobar
 
+Escribimos una función que llamaremos $actividad_semanal$ donde mostraremos la actividad acumula según el dia de la semana. Primero extraemos el nombre del día a partir de la fecha y la hora, para esto hemos creado una nueva columna con los dias de la semana, también agrupamos todos los registros de los día de la semana.
+Ahora ordenamos los días de la semana en el formato (lunes, martes, miércoles, jueves, viernes, sábado, domingo), ya que R las palabras alfabéticamente.
+
 ```{r}
 actividad_semanal <- logs %>%
-  mutate(Dia_Semana = format(Hora, "%A" )) %>%
+  mutate(Dia_Semana = weekdays(Hora)) %>%
   group_by(Dia_Semana) %>%
   summarise(Total_Registros = n(), .groups = 'drop') %>%
   mutate(Dia_Semana = factor(Dia_Semana, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   arrange(Dia_Semana)
 ```
 
-#Con esta función extraemos el nombre del día
-
-```{r}
-actividad_semanal <- logs %>%
-  mutate(Dia_Semana = weekdays(Hora)) %>% 
-  group_by(Dia_Semana) %>%
-  summarise(Total_Registros = n(), .groups = 'drop')
-```
 #Visualización en un gráfico de barras
+
+Para visualizar el día de la semana con mayor actividad hacemos un gráfico de barras que representa de forma visual y muy intuitiva qué dia es el más frecuentado, ya que esta columna será la más grande. Además podemos ver si a lo largo de la semana hay una actividad similar o si incrementa de forma exponecial en algún dia concreto.
 
 ```{r}
 ggplot(actividad_semanal, aes(x = Dia_Semana, y = Total_Registros)) +
@@ -472,13 +484,11 @@ ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
 
-# head(logs)
-# colnames(logs)
-# logs %>%
+#head(logs)
+#colnames(logs)
+#logs %>%
 # 
-# unique(logs$`Nombre evento`)
-
-#Como sabemos los roles seguramente?
+#unique(logs$`Nombre evento`)
 
 #Tabla resumen
 
@@ -522,8 +532,6 @@ porcentaje_interacc_directa
 ```
 
 #Grafico
-
-
 
 
 ```{r}
