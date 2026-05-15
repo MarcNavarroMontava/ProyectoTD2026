@@ -586,6 +586,72 @@ ggplot(gaps, aes(x = gap_minutos)) +
 ```
 La mayor parte de los gaps son cortos (menos de una hora), lo que indica sesiones de uso continuo. Los gaps extremos (> P99) superan el equivalente a varios días, y corresponden principalmente a periodos entre clases, vacaciones o a usuarios que dejaron de usar la plataforma temporalmente. No se detectan patrones que sugieran errores de registro.
 
+### 5. Resumen final de outliers
+
+```{r outliers-resumen}
+# Tabla resumen unificada con todos los tipos de outliers detectados,
+# las cantidades encontradas y la interpretación más probable en cada caso
+resumen_outliers <- tibble(
+  `Dimensión analizada` = c(
+    "Actividad por usuario (IQR)",
+    "Actividad por usuario (IQR)",
+    "Actividad diaria (IQR)",
+    "Actividad diaria (IQR)",
+    "Hora del día (Z-score > 2)",
+    "Gaps de sesión (> P99)"
+  ),
+  `Tipo de outlier` = c(
+    "Usuarios muy activos",
+    "Usuarios muy inactivos",
+    "Días con pico anómalo",
+    "Días con mínimo anómalo",
+    "Horas estadísticamente atípicas",
+    "Gaps extremos entre eventos"
+  ),
+  `Cantidad detectada` = c(
+    nrow(filter(out_usuarios, tipo == "Actividad Muy Alta")),
+    nrow(filter(out_usuarios, tipo == "Actividad Muy Baja")),
+    nrow(filter(outliers_dias, n > lim_d_sup)),
+    nrow(filter(outliers_dias, n < lim_d_inf)),
+    nrow(out_horas),
+    nrow(outliers_sesiones)
+  ),
+  `Posible causa` = c(
+    "Profesor / administrador",
+    "Abandono del curso / registro tardío",
+    "Entrega de tarea / examen",
+    "Festivo / fin de semana sin actividad",
+    "Horario de clase o estudio intensivo previo a entrega",
+    "Sesión abandonada / periodo de vacaciones"
+  )
+)
+
+knitr::kable(resumen_outliers,
+             caption = "Tabla Resumen: Consolidado de outliers detectados en Moodle",
+             format.args = list(big.mark = "."),
+             booktabs = TRUE)
+```
+```{r outliers-resumen-plot, fig.cap="Comparativa del volumen de outliers por tipo"}
+ggplot(resumen_outliers,
+       aes(x = reorder(`Tipo de outlier`, -`Cantidad detectada`),
+           y = `Cantidad detectada`,
+           fill = `Dimensión analizada`)) +
+  geom_col(color = "white", alpha = 0.85, width = 0.6) +
+  geom_text(aes(label = `Cantidad detectada`),
+            vjust = -0.5, fontface = "bold", size = 3.5) +
+  scale_fill_manual(values = c(
+    "Actividad por usuario (IQR)" = "darkolivegreen3",
+    "Actividad diaria (IQR)"      = "burlywood3",
+    "Hora del día (Z-score > 2)"  = "saddlebrown",
+    "Gaps de sesión (> P99)"      = "maroon"
+  )) +
+  labs(title = "Comparativa del Volumen de Outliers Detectados",
+       x = "Tipo de Anomalía", y = "Casos Detectados", fill = "Método") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+La mayor parte de los outliers detectados no son errores de datos sino comportamientos legítimos y esperables en una plataforma educativa. Los usuarios con actividad muy alta son casi con certeza el profesor o un administrador, lo que es coherente con el análisis de IPs faltantes realizado en la sección de limpieza. Los picos diarios coinciden con fechas de entrega, y los gaps extremos de sesión reflejan periodos de inactividad naturales entre clases o vacaciones. Ninguno de los outliers detectados requiere eliminación del conjunto de datos; al contrario, son información valiosa para entender la dinámica del curso.
+
 
 ## ¿Qué tipo de relación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 
