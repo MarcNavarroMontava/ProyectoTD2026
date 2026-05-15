@@ -415,12 +415,10 @@ La primera variable $hora_pico$ busca la hora que tuvo más actividad, como hemo
 hora_pico <- actividad_por_hora$Solo_Hora[1]
 max_logs <- actividad_por_hora$Total_Registros[1]
 ```
-
-#Visualización 
-
 Para completar este apartado vamos a visualizar un una gráfica para observar los resultados, para esto hemos usado un tipo de gráfica que visualiza satisfactoriamente y diferencia la hora pico de las horas con menos registros. Usamos un gráfico de areas donde podemos observar que la hora pico con el número de registros más alto corresponde a las 9:00 horas.
 
 ```{r}
+#Visualización 
 ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) + 
   geom_line(color = "blue", size = 1) +
   geom_point(color = "blue", size = 2) +
@@ -433,12 +431,11 @@ ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) +
   
 Esta pregunta está muy relacionada con la pregunta anterior ya que queremos saber qué dia de la semana hay más actividad, y en la preguntaa anterior queriamos saber que horqa del dia hay más actividad, por lo que el procedimiento va a ser bastqante parecido.
 
-#Primero creamos un función que nos permita extraer parte de la fecha que queramos comprobar
-
 Escribimos una función que llamaremos $actividad_semanal$ donde mostraremos la actividad acumula según el dia de la semana. Primero extraemos el nombre del día a partir de la fecha y la hora, para esto hemos creado una nueva columna con los dias de la semana, también agrupamos todos los registros de los día de la semana.
 Ahora ordenamos los días de la semana en el formato (lunes, martes, miércoles, jueves, viernes, sábado, domingo), ya que R las palabras alfabéticamente.
 
 ```{r}
+#Primero creamos un función que nos permita extraer parte de la fecha que queramos comprobar
 actividad_semanal <- logs %>%
   mutate(Dia_Semana = weekdays(Hora)) %>%
   group_by(Dia_Semana) %>%
@@ -446,47 +443,40 @@ actividad_semanal <- logs %>%
   mutate(Dia_Semana = factor(Dia_Semana, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   arrange(Dia_Semana)
 ```
-
-#Visualización en un gráfico de barras
-
 Para visualizar el día de la semana con mayor actividad hacemos un gráfico de barras que representa de forma visual y muy intuitiva qué dia es el más frecuentado, ya que esta columna será la más grande. Además podemos ver si a lo largo de la semana hay una actividad similar o si incrementa de forma exponecial en algún dia concreto.
 
 ```{r}
+#Visualización en un gráfico de barras
 ggplot(actividad_semanal, aes(x = Dia_Semana, y = Total_Registros)) +
   geom_col(fill = "orange", color = "white") +
   labs(title = "Actividad en AulaVirtual por Día de la Semana", x = "Día de la semana", y = "Número total de registros")
 ```
 
-
 ## ¿Existe una interacción significativa entre el día de la semana y la franja horaria que revele patrones de uso intensivo? - Silvia
 
 En este caso hemos planteado una pregunta un poco más elaborada para así obtener una gráfica diferente, por esto hemos hecho uso de un heatmap para visualizarla.
 
-
-#En esta función cruzamos varias variables como día y hora
-
 En esta función hemos creado la variable $interaccion_horaria$ que nos permitirá extraer información de la columna sobre el dia de la semana, extraer la hora, ordenarlo y agruparlo, además usamos la funcion 'drop()' que el data frame sea más sencillo de manipular.
 
 ```{r}
+#En esta función cruzamos varias variables como día y hora
 interaccion_horaria <- logs %>%
   mutate(Dia = format(Hora, "%A"), Hora_Num = hour(Hora)) %>%
   mutate(Dia = factor(Dia, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   group_by(Dia, Hora_Num) %>%
   summarise(Total = n(), .groups = 'drop')
 ```
-#Visualización en un mapa de calor (Heatmap)
-
 Como hemos comentado antes, hemos visualizado este apartado con un mapa de calor, esto se debe a que grácias a este tipo de visualización se pueden apreciar patrones de temporales en registros.
 Hemos hecho una escala cromática que define el degradado de color, en él hemos puesto de color naranja las horas con menor actividad frente el color azul que representa las horas con mayor actividad.
 
 ```{r}
+#Visualización en un mapa de calor (Heatmap)
 ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
   geom_tile(color = "white") + 
   scale_fill_gradient(low = "orange", high = "blue") +
   scale_x_continuous(breaks = 0:23) +
   labs(title = "Mapa de Calor: Interacción Día vs Hora en Moodle", x = "Franja Horaria (0-23h)", y = "Día de la Semana", fill = "Registros")
 ```
-
 
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
@@ -584,8 +574,9 @@ accesos %>%
   knitr::kable(caption = "Distinción entre posibles profesores y estudiantes",
                booktabs = TRUE)
  
-#se ve claramente que componentes como Sistema, Tarea o Cuestionario son accedidos por casi todos los usuarios, mientras que otros como Registros, Actividad del curso o Participación en el curso solo los usa 1 usuario. Estos últimos son componentes claramente administrativos, lo que nos permite asumir que ese único usuario es el profesor
 ```
+Se ve claramente que componentes como Sistema, Tarea o Cuestionario son accedidos por casi todos los usuarios, mientras que otros como Registros, Actividad del curso o Participación en el curso solo los usa 1 usuario. Estos últimos son componentes claramente administrativos, lo que nos permite asumir que ese único usuario es el profesor
+
 
 ## ¿Qué tan antiguos son los logs? ¿Pueden ser de otros años? - Lucía
 
