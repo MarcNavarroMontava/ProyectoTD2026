@@ -395,6 +395,7 @@ ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) +
 ```
 
 ## ¿Qué día de la semana hay más actividad?¿Coincide con alguna fecha significativa? - Silvia
+  
 
 #Primero creamos un función que nos permita extraer parte de la fecha que queramos comprobar
 
