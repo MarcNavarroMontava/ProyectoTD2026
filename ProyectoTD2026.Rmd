@@ -501,6 +501,29 @@ ggplot(act_dia, aes(x = fecha, y = n)) +
 
 Los días con actividad anormalmente alta suelen coincidir con fechas de entrega de prácticas o cuestionarios, donde todos los estudiantes acceden a la plataforma de forma concentrada. Los días con actividad muy baja corresponden típicamente a festivos o fines de semana sin clase presencial.
 
+## 3. Outliers de actividad horaria (agregada)
+
+```{r outliers-horarios}
+act_hora <- logs %>%
+  mutate(h = hour(Hora)) %>%
+  count(fecha = as_date(Hora), h) %>%
+  group_by(h) %>%
+  summarise(media = mean(n), sd = sd(n), .groups = "drop") %>%
+  mutate(
+    z_score = (media - mean(media)) / sd(media),
+    outlier  = abs(z_score) > 2
+  )
+
+out_horas <- act_hora %>% filter(outlier)
+
+knitr::kable(act_hora,
+             caption = "Tabla 3: Media de actividad por hora del día con Z-score",
+             col.names = c("Hora (0-23h)", "Media Eventos", "Desv. Estándar", "Z-Score", "¿Outlier?"),
+             digits = 2,
+             format.args = list(big.mark = "."),
+             booktabs = TRUE)
+```
+
 # Preguntas
 
 
