@@ -933,6 +933,27 @@ knitr::kable(hora_pico_comp,
              col.names = c("Componente", "Hora pico", "Registros"),
              booktabs = TRUE)
 ```
+```{r heatmap-componentes, fig.cap="Mapa de calor: componentes × hora del día"}
+
+top_componentes <- componentes_web %>% head(8) %>% pull(Componente)
+
+heatmap_data <- logs_web %>%
+  filter(Componente %in% top_componentes) %>%
+  mutate(hora = hour(Hora)) %>%
+  group_by(Componente, hora) %>%
+  summarise(total = n(), .groups = "drop")
+
+ggplot(heatmap_data, aes(x = hora, y = reorder(Componente, total), fill = total)) +
+  geom_tile(color = "white", linewidth = 0.4) +
+  scale_fill_gradient(low = "maroon", high = "goldenrod2",
+                      labels = scales::comma,
+                      name = "Registros") +
+  scale_x_continuous(breaks = 0:23) +
+  labs(title = "Mapa de calor: actividad web por componente y hora",
+       x = "Hora del día (0-23h)", y = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.y = element_text(face = "bold"))
+```
 
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
