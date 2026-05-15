@@ -453,6 +453,53 @@ ggplot(user_data_plot, aes(x = "", y = eventos, color = es_outlier)) +
 ```
 Los usuarios con actividad extremadamente alta son muy probablemente el profesor o un administrador, lo que es coherente con el análisis de IPs faltantes realizado anteriormente: los mismos usuarios que ejecutan acciones de back-end sin IP son los que acumulan más eventos en total. Los usuarios con actividad muy baja podrían ser estudiantes que abandonaron el curso a mitad o que se matricularon tarde.
 
+## 2. Outliers de actividad diaria
+
+```{r outliers-diarios}
+act_dia <- logs %>%
+  count(fecha = as_date(Hora), name = "n")
+
+iqr_d   <- IQR(act_dia$n)
+q1_d    <- quantile(act_dia$n, 0.25)
+q3_d    <- quantile(act_dia$n, 0.75)
+lim_d_sup <- q3_d + 1.5 * iqr_d
+lim_d_inf <- max(0, q1_d - 1.5 * iqr_d)
+
+act_dia <- act_dia %>%
+  mutate(tipo = if_else(n > lim_d_sup | n < lim_d_inf, "Atípico", "Normal"))
+
+outliers_dias <- act_dia %>% filter(tipo == "Atípico")
+
+knitr::kable(outliers_dias,
+             caption = "Tabla 2: Días con volumen de eventos anómalo",
+             col.names = c("Fecha", "Total Eventos", "Estado"),
+             format.args = list(big.mark = "."),
+             booktabs = TRUE)
+```
+En la Tabla \@ref(tab:outliers-diarios) se listan los días con actividad fuera de los límites IQR. La Figura \@ref(fig:outliers-diarios-plot) permite situar estos días en la serie temporal completa del curso.
+
+```{r outliers-diarios-plot, fig.cap="Actividad diaria con días atípicos marcados"}
+# Serie temporal completa con puntos coloreados según si son normales o atípicos
+# Las etiquetas marcan las fechas concretas de los días anómalos
+ggplot(act_dia, aes(x = fecha, y = n)) +
+  geom_line(color = "pink") +
+  geom_point(aes(color = tipo), size = 2) +
+  geom_hline(yintercept = c(lim_d_inf, lim_d_sup),
+             linetype = "dashed", color = "hotpink", alpha = 0.7) +
+  ggrepel::geom_text_repel(
+    data = outliers_dias,
+    aes(label = as.character(fecha)),
+    size = 3, color = "navyblue"
+  ) +
+  scale_color_manual(values = c("Atípico" = "gold", "Normal" = "hotpink")) +
+  labs(title = "Detección de Días Atípicos en la Actividad de Moodle",
+       subtitle = paste0("Límites IQR: [", round(lim_d_inf, 0),
+                         ", ", round(lim_d_sup, 0), "] eventos/día"),
+       x = "Fecha", y = "Número de eventos", color = "Estado") +
+  theme_minimal()
+```
+
+Los días con actividad anormalmente alta suelen coincidir con fechas de entrega de prácticas o cuestionarios, donde todos los estudiantes acceden a la plataforma de forma concentrada. Los días con actividad muy baja corresponden típicamente a festivos o fines de semana sin clase presencial.
 
 # Preguntas
 
