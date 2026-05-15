@@ -289,15 +289,17 @@ Los outliers serían aquellos con más probabilidades de ser de la parte de admi
 Recordemos que este análisis es proveniente de la falta de datos en las IPs, explicada en el apartado anterior.
 
 
-Por lo tanto procederemos marcando los nombres de
+Por lo tanto procederemos marcando los nombres de los eventos los cuales según la frecuencia de acciones críticas, podemos determinar como `eventos_criticos`.
 ```{r}
 eventos_criticos <- logs %>%
   filter(str_detect(`Nombre evento`, "(?i)calific|enví|entreg|asign|borrad"))
 ```
 
+Una vez determinamos estos eventos, procederemos con el cálculo para ser capaces de visualizar lo que hemos logrado. De forma que representaremos la polarización que existe entre las acciones críticas que tomo cada usuario y que porcentaje real representa respecto al total. 
+
+Es decir de aquellos que hicieron un gran uso de tareas administrativas(las cuales hemos determinado) cuanto representaron respecto al totaly de aquellos que no. 
 
 ```{r}
-
 polarizacion <- eventos_criticos %>%
   count(`Nombre completo del usuario`, name = "Volumen_Critico") %>%
   arrange(desc(Volumen_Critico)) %>%
@@ -307,6 +309,10 @@ polarizacion <- eventos_criticos %>%
     Total_Usuarios = n()
   )
 
+
+```
+
+```{r}
 ggplot(polarizacion, aes(x = Ranking, y = Porcentaje_Acumulado)) +
   geom_line(color = "darkred", linewidth = 1.2) +
   geom_area(fill = "darkred", alpha = 0.2) +
@@ -319,6 +325,7 @@ ggplot(polarizacion, aes(x = Ranking, y = Porcentaje_Acumulado)) +
   ) +
   theme_minimal()
 ```
+
 
 
 ## Análisis de outliers...
