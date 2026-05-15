@@ -22,7 +22,7 @@ Además de las acciones de los estudiantes, el registro incluye las actividades 
 
 #Carga de librerias
 
-```{r}
+```{r, echo = FALSE}
 library(pacman)
 library(dplyr)
 library(tidyverse)
@@ -33,14 +33,14 @@ library(ggplot2)
 
 
 # LEER LOS DATOS
-```{r}
+```{r, echo = FALSE}
 logs <- read_csv("data/logs_moodle_anon.csv")
 
 ```
 
 # FIGURA
 
-```{r figura-logs, fig.cap="Frecuencia de actividad en los componentes de Moodle"}
+```{r figura-logs, fig.cap="Frecuencia de actividad en los componentes de Moodle", echo = FALSE}
 
 datos_figura <- logs %>%
   count(Componente, sort = TRUE) %>%
@@ -65,7 +65,7 @@ En la Figura \@ref(fig:figura-logs) Observamos la frecuencia de uso de cada comp
 Seleccionamos los 10 primeros registros (los más recientes)
 y escogemos las columnas más importantes para que quepa bien en la tabla
 
-```{r tabla-logsrecientes}
+```{r tabla-logsrecientes, echo = FALSE}
 logs_recientes <- logs %>%
   select(Hora, `Nombre completo del usuario`, Componente, `Nombre evento`) %>%
   head(10)
