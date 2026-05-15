@@ -326,6 +326,35 @@ ggplot(polarizacion, aes(x = Ranking, y = Porcentaje_Acumulado)) +
   theme_minimal()
 ```
 
+Sin embargo, detectamos un sesgo en nuestra gráfica, ya que a pesar de haber conseguido polarizar los usuarios que han hecho la mayor parte de registros que consideramos eventos administrativos/críticos, no podemos determinar por completo que no sean alumnos los cuales han revisado sus calificaciones una y otra vez. O han estado varias veces revisando horarios de plazos de entrega, es decir que nuestro criterio es demasiado débil para una conclusión robusta.
+
+Por lo que decidimos aplicar un criterio aún más robusto y no basado en nuestros datos, sino en las restricciones de cualquier Moodle en donde los permisos de un usuario normal son completamente distintos al de un rol de administrador, haciendo de esta forma un clustering basado en las normas de permisos por defecto de un Moodle cualquiera. (Usuario calificado, borrado... Actividades de profesor, Enviado, entregado,... Acciones de alumno...)
+
+```{r}
+clasificacion_estricta <- logs %>%
+  mutate(Tipo_Accion = case_when(
+    str_detect(`Nombre evento`, "(?i)Usuario calificado|borrad|asignad|eliminad") ~ "Acciones_Profesor",
+    str_detect(`Nombre evento`, "(?i)enviad|entregad|intento") ~ "Acciones_Alumno",
+    TRUE ~ "Otro"
+  )) %>%
+  filter(Tipo_Accion != "Otro") %>%
+  
+  count(`Nombre completo del usuario`, Tipo_Accion) %>%
+  
+  pivot_wider(names_from = Tipo_Accion, values_from = n, values_fill = list(n = 0)) %>%
+  
+  mutate(
+    Veredicto = case_when(
+      Acciones_Profesor > 0 & Acciones_Alumno == 0 ~ "100% Profesor/Admin",
+      Acciones_Alumno > 0 & Acciones_Profesor == 0 ~ "100% Alumno (quizás muy activo)",
+      Acciones_Profesor > 0 & Acciones_Alumno > 0 ~ "Rol Híbrido (Becario o Profe probando el curso)",
+      TRUE ~ "Indeterminado"
+    )
+  ) %>%
+  arrange(desc(Acciones_Profesor))
+
+print(head(clasificacion_estricta, 15))
+```
 
 
 ## Análisis de outliers...
