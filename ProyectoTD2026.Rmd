@@ -287,6 +287,8 @@ actividad_usuario <- actividad_usuario %>%
 
 ## ¿Cuales han sido las tareas más realizadas por los estudiantes?¿Por qué? - Marc
 
+Esta pregunta es interesante porque permite identificar que actividades tienen un mayor impacto dentro de la plataforma. Analizar las tareas mas utilizadas ayuda a evaluar que herramientas docentes resultan más efectivas para el seguimiento de la asignatura. Los datos muestran que las tareas mas frecuentes son las practicas de laboratorio y actividades relacionadas con Datacamp, esto indica que la mayoria de estudiantes participaron de forma bastante constante en las actividades obligatorias de la asignatura. Tambien destaca que las diferencias entre tareas son pequeñas, lo que sugiere que no hubo una caida fuerte de participacion a lo largo del curso.
+
 ```{r}
 
 tareas_mas_realizadas <- logs %>%
@@ -307,6 +309,7 @@ knitr::kable(tareas_mas_realizadas,
 
 ## ¿Cuantos estudiantes aplican el control de asistencia online, tiene alguna relación con las tareas más realizadas? - Marc
 
+Esta pregunta resulta interesante porque permite analizar el grado de implicación de los estudiantes con las herramientas de seguimiento academico. Relacionando estos resultados con las tareas mas frecuentes, se observa que el numero de estudiantes que usan el control de asistencia es muy parecido al numero de usuarios que participan en las practicas y entregas principales, que rondaba entre 70 y 75 usuarios. Esto sugiere que los estudiantes mas activos en la plataforma tambien suelen participar en el seguimiento de asistencia, mostrando un uso constante de la plataforma durante el curso.
 
 ```{r}
 
