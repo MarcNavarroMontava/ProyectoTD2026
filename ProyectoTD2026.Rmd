@@ -1104,7 +1104,8 @@ En conclusión, el análisis de los registros de Moodle muestra que las tareas m
 
 Por otro lado, el estudio del control de asistencia online refleja que una gran parte de los usuarios registrados también participó activamente en este sistema. Además, el número de estudiantes que utilizaron la funcionalidad de asistencia es muy similar al de aquellos que realizaron las tareas principales del curso. Esto apunta a una relación clara entre ambas variables, ya que los estudiantes más implicados en las entregas y actividades evaluables son también quienes presentan una mayor constancia en el seguimiento de la asistencia.
 
-#Silvia
+# Silvia
+
 Con relación a la hora pico del dá donde hay más registros en la plataforma podemos confirmar que se obtiene a las 9:00 hora de la mañana siendo esta una hora significativa ya que es la hora de inicio de clases. Además podemos tener en cuenta que el segundo pico más alto es a las 11:00 horas siendo esta tmabién significativa ya que concide con el inicio de la segunda clase en el horario. 
 Por otra parte viendo los resultados generales que el gráfico nos proporciona observamos como a lo largo de la tarde el número de registros es significativamente menor respecto al del horario de la mañana. Por último, también se observa que a lo largo de la norche y la madrugada tambié se generan registros, siendo el pico más bajo a las 4:00 horas de la madrugada.
 
