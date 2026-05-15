@@ -954,6 +954,7 @@ ggplot(heatmap_data, aes(x = hora, y = reorder(Componente, total), fill = total)
   theme_minimal(base_size = 12) +
   theme(axis.text.y = element_text(face = "bold"))
 ```
+En la Tabla \@ref(tab:momentos-tipicos) se recoge la hora de mayor afluencia para cada componente. A continuación,en la Figura \@ref(fig:heatmap-componentes) se confirma que los componentes más activos desde la web son *Sistema* (navegación general) y *Tarea*. Los cuestionarios muestran un patrón más concentrado en horas concretas, normalmente antes de los deadlines de entrega. La Carpeta tiene accesos distribuidos a lo largo del día, lo que indica que se consulta de forma continua como repositorio de material. La Encuesta aparece con picos muy puntuales, coherentes con los periodos específicos del curso en que se activan.
 
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
