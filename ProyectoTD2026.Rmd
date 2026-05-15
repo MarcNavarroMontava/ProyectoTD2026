@@ -415,8 +415,14 @@ La primera variable $hora_pico$ busca la hora que tuvo más actividad, como hemo
 hora_pico <- actividad_por_hora$Solo_Hora[1]
 max_logs <- actividad_por_hora$Total_Registros[1]
 ```
-Para completar este apartado vamos a visualizar un una gráfica para observar los resultados, para esto hemos usado un tipo de gráfica que visualiza satisfactoriamente y diferencia la hora pico de las horas con menos registros. Usamos un gráfico de areas donde podemos observar que la hora pico con el número de registros más alto corresponde a las 9:00 horas.
+Antes de visualizar en una gráfica los datos vamos a realizar una tabla donde explica los resultados obtenidos en nuestros estudio.
 
+```{r}
+#Tabla de resultados
+
+```
+
+Para completar este apartado vamos a visualizar un una gráfica para observar los resultados, para esto hemos usado un tipo de gráfica que visualiza satisfactoriamente y diferencia la hora pico de las horas con menos registros. Usamos un gráfico de areas donde podemos observar que la hora pico con el número de registros más alto corresponde a las 9:00 horas.
 ```{r}
 #Visualización 
 ggplot(actividad_por_hora, aes(x = Solo_Hora, y = Total_Registros)) + 
@@ -443,6 +449,12 @@ actividad_semanal <- logs %>%
   mutate(Dia_Semana = factor(Dia_Semana, levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
   arrange(Dia_Semana)
 ```
+Antes de realizar la gráfica con los resultados obtenidos vamos a realizar una función donde representemos los resultados
+
+```{r}
+#Tabla
+
+```
 Para visualizar el día de la semana con mayor actividad hacemos un gráfico de barras que representa de forma visual y muy intuitiva qué dia es el más frecuentado, ya que esta columna será la más grande. Además podemos ver si a lo largo de la semana hay una actividad similar o si incrementa de forma exponecial en algún dia concreto.
 
 ```{r}
@@ -466,6 +478,15 @@ interaccion_horaria <- logs %>%
   group_by(Dia, Hora_Num) %>%
   summarise(Total = n(), .groups = 'drop')
 ```
+Vamos a realizar una tabla para poder visualizar los datos que vamos a usar después para representar en la gráfica 
+
+```{r}
+#Tabla 
+knitr::kable(interaccion_horaria %>% filter(Dia == "lunes"), 
+             caption = "Registro de actividad detallada: Lunes",
+             booktabs = TRUE)
+```
+
 Como hemos comentado antes, hemos visualizado este apartado con un mapa de calor, esto se debe a que grácias a este tipo de visualización se pueden apreciar patrones de temporales en registros.
 Hemos hecho una escala cromática que define el degradado de color, en él hemos puesto de color naranja las horas con menor actividad frente el color azul que representa las horas con mayor actividad.
 
@@ -593,11 +614,11 @@ rango_fechas <- logs %>%
 knitr::kable(rango_fechas,
              caption = "Rango temporal de los logs registrados",
              booktabs = TRUE)
-
-#los datos van desde julio de 2024 hasta marzo de 2026, unos 600 días en total O sea, los logs no son solo del curso 2024-2025, sino que cubren más tiempo
+```
+Los datos van desde julio de 2024 hasta marzo de 2026, unos 600 días en total O sea, los logs no son solo del curso 2024-2025, sino que cubren más tiempo
 Para ver cómo se reparte esa actividad a lo largo del tiempo agrupamos los eventos por mes con floor_date y lo representamos en un gráfico de barras
 
-
+```{r}
 logs %>%
   mutate(mes = floor_date(Hora, "month")) %>%
   count(mes) %>%
@@ -606,10 +627,11 @@ logs %>%
   labs(title = "Actividad mensual: ¿hay registros de otros años?",
        x = "Mes", y = "Número de eventos") +
   theme_minimal()
-
-#Se ven dos picos grandes: uno en enero-febrero de 2025 y otro en julio de 2025 (coinciden con exámenes o entregas)
+```
+Se ven dos picos grandes: uno en enero-febrero de 2025 y otro en julio de 2025 (coinciden con exámenes o entregas)
 filtramos los usuarios cuya última conexión fue antes de septiembre de 2024 para ver si hay alguien que sea de un curso anterior
 
+```{r}
 usuarios_antiguos <- logs %>%
   group_by(`Nombre completo del usuario`) %>%
   summarise(ultima_conexion = max(Hora),
@@ -620,9 +642,9 @@ usuarios_antiguos <- logs %>%
 knitr::kable(usuarios_antiguos,
              caption = "Usuarios que solo aparecen en fechas antiguas",
              booktabs = TRUE)
+```
 
-
-#Como se ve en la Tabla, solo "U0124" y "U0093" tienen toda su actividad en julio de 2024, así que son de un curso anterior y no del 2024-2025.
+Como se ve en la Tabla, solo "U0124" y "U0093" tienen toda su actividad en julio de 2024, así que son de un curso anterior y no del 2024-2025.
 
 
 
