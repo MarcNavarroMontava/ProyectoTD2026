@@ -540,9 +540,32 @@ ggplot(act_hora, aes(x = h, y = media, fill = outlier)) +
 ```
 Las horas con Z-score elevado coinciden con los horarios habituales de clase (franja de mañana), lo que confirma que la actividad en Moodle está muy estructurada por el calendario académico. Las horas nocturnas o de madrugada con algún pico puntual podrían indicar sesiones de estudio intensivo antes de entregas.
 
+## 4. Sesiones de usuario con gaps temporales extremos
 
 # Preguntas
+```{r outliers-sesiones}
+gaps <- logs %>%
+  arrange(`Nombre completo del usuario`, Hora) %>%
+  group_by(`Nombre completo del usuario`) %>%
+  mutate(gap_minutos = as.numeric(difftime(Hora, lag(Hora), units = "mins"))) %>%
+  filter(!is.na(gap_minutos), gap_minutos > 0) %>%
+  ungroup()
 
+#usamos P99 como umbral: gaps por encima de este percentil son extremos
+lim_gap <- quantile(gaps$gap_minutos, 0.99)
+outliers_sesiones <- gaps %>% filter(gap_minutos > lim_gap)
+
+knitr::kable(
+  outliers_sesiones %>%
+    select(`Nombre completo del usuario`, Hora, gap_minutos) %>%
+    arrange(desc(gap_minutos)) %>%
+    head(15),
+  caption = "Tabla 4: Top 15 mayores gaps de inactividad (> P99)",
+  col.names = c("Nombre del Usuario", "Fecha/Hora Evento", "Inactividad (min)"),
+  digits = 1,
+  format.args = list(big.mark = "."),
+  booktabs = TRUE)
+```
 
 ## ¿Qué tipo de relación existe entre los logs de los usuarios, y el nombre del evento, según los datos?
 
