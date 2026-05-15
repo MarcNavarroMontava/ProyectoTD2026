@@ -809,15 +809,6 @@ interaccion_horaria <- logs %>%
   summarise(Total = n(), .groups = 'drop')
 ```
 
-Vamos a realizar una tabla para poder visualizar los datos que vamos a usar después para representar en la gráfica 
-
-```{r}
-#Tabla 
-knitr::kable(interaccion_horaria,
-             caption = "Registro de actividad detallada", booktabs = TRUE)
-
-```
-
 Como hemos comentado antes, hemos visualizado este apartado con un mapa de calor, esto se debe a que grácias a este tipo de visualización se pueden apreciar patrones de temporales en registros.
 Hemos hecho una escala cromática que define el degradado de color, en él hemos puesto de color naranja las horas con menor actividad frente el color azul que representa las horas con mayor actividad.
 
