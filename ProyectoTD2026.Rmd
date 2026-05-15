@@ -454,13 +454,11 @@ ggplot(interaccion_horaria, aes(x = Hora_Num, y = Dia, fill = Total)) +
 ## ¿Qué tipo de eventos generan interacciones entre usuarios distintos (Usuario != Usuario afectado) y quiénes son los principales actores (profesores vs. alumnos)? - Dorina
 
 
-# head(logs)
-# colnames(logs)
-# logs %>%
+#head(logs)
+#colnames(logs)
+#logs %>%
 # 
-# unique(logs$`Nombre evento`)
-
-#Como sabemos los roles seguramente?
+#unique(logs$`Nombre evento`)
 
 #Tabla resumen
 
@@ -504,8 +502,6 @@ porcentaje_interacc_directa
 ```
 
 #Grafico
-
-
 
 
 ```{r}
