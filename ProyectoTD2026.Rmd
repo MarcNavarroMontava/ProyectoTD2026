@@ -914,6 +914,25 @@ ggplot(head(componentes_web, 10),
 ```
 En la Figura \@ref(fig:plot-componentes) se aprecia con claridad la jerarquía de uso: los componentes relacionados con la navegación general y las entregas acumulan la inmensa mayoría de los accesos web.
 
+```{r momentos-tipicos}
+componentes_interes <- c("Tarea", "Cuestionario", "Carpeta", "Encuesta", "Sistema")
+
+momentos_tipicos <- logs_web %>%
+  filter(Componente %in% componentes_interes) %>%
+  mutate(hora = hour(Hora)) %>%
+  group_by(Componente, hora) %>%
+  summarise(total = n(), .groups = "drop")
+
+hora_pico_comp <- momentos_tipicos %>%
+  group_by(Componente) %>%
+  slice_max(order_by = total, n = 1) %>%
+  ungroup()
+
+knitr::kable(hora_pico_comp,
+             caption = "Hora de máxima actividad web por componente",
+             col.names = c("Componente", "Hora pico", "Registros"),
+             booktabs = TRUE)
+```
 
 ## ¿Hay estudiantes que nunca entraron a ciertas secciones? ¿Podemos asumir una clara distinción entre estudiantes y profesores? - Lucía
 
